@@ -107,17 +107,16 @@ void handleAnalogOutputs()
     }
     else
     {
-        String temp;
         String message = "{\"data\":[\n";
         for (uint8_t i = 0; i < server.args(); i++)
         {
-            if (server.argName(i).substring(0, 5) == "VSET")
+            if (server.argName(i).substring(0, 4) == "VSET")
             {
-                setChannelVoltage((char)server.argName(i).substring(5).toInt(), server.arg(i).toFloat());
+                setChannelVoltage((char)server.argName(i).substring(4).toInt(), server.arg(i).toFloat());
             }
         }
         server.sendHeader("Access-Control-Allow-Origin", "*");
-        server.send(200, "text/plain", "Ok");
+        server.send(200, "text/plain", "{\"status\":\"ok\"}");
     }
 }
 
