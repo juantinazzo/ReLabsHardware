@@ -1,22 +1,15 @@
 {
 	"folders": [
 		{
-			"name": "ESP8266_ADC_TCP",
 			"path": ".."
 		}
 	],
 	"settings": {
 		"files.associations": {
-			"*.tcc": "cpp",
-			"istream": "cpp",
-			"ostream": "cpp",
-			"optional": "cpp",
-			"system_error": "cpp",
 			"array": "cpp",
-			"functional": "cpp",
-			"tuple": "cpp",
-			"type_traits": "cpp",
-			"utility": "cpp"
+			"string": "cpp",
+			"string_view": "cpp",
+			"ranges": "cpp"
 		}
 	}
 }
