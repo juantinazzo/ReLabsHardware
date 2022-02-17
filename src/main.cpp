@@ -12,6 +12,9 @@ extern "C"
 #include <SPI.h>
 #include <ArduinoJson.h>
 
+#include "Passwords.h"
+#include "Ethernet_Config.h"
+
 ESP8266WebServer server(80);
 
 void connectToStuff();
@@ -19,8 +22,6 @@ void initOTA();
 void reconnect();
 
 WiFiClient espClient;
-
-#include "Passwords.h"
 
 float voltageInputMultiplier[6][8];
 float voltageOutputMultiplier[4] = {1, 1, 1, 1};
@@ -229,6 +230,7 @@ void setup()
     startAnalogInputs();
     startExpanders();
     startVoltageOutputs();
+    connectToEthernet();
 }
 
 void loop()

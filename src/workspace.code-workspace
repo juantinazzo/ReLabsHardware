@@ -9,7 +9,15 @@
 			"array": "cpp",
 			"string": "cpp",
 			"string_view": "cpp",
-			"ranges": "cpp"
+			"ranges": "cpp",
+			"*.tcc": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"memory": "cpp",
+			"random": "cpp",
+			"initializer_list": "cpp"
 		}
 	}
 }
