@@ -1,9 +1,7 @@
 #include <Arduino.h>
-#include <WebServer.h>
-//#include <EthernetWebServer.h>
 #include <ArduinoJson.h>
+#include <aWOT.h>
 
-extern WebServer server;
 // extern EthernetWebServer ethernetServer;
 
 void handleRoot();
@@ -13,3 +11,5 @@ void handleNotFound();
 void handleConfigGains();
 void handleReadGains();
 void handleStatus();
+
+void indexCmd(Request &req, Response &res);
