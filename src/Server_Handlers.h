@@ -2,14 +2,9 @@
 #include <ArduinoJson.h>
 #include <aWOT.h>
 
-// extern EthernetWebServer ethernetServer;
-
-void handleRoot();
-void handleAnalogInputs();
-void handleAnalogOutputs();
-void handleNotFound();
-void handleConfigGains();
-void handleReadGains();
-void handleStatus();
-
 void indexCmd(Request &req, Response &res);
+void handleAnalogInputs(Request &req, Response &res);
+void handleAnalogOutputs(Request &req, Response &res);
+void handleConfigGains(Request &req, Response &res);
+void handleReadGains(Request &req, Response &res);
+void handleStatus(Request &req, Response &res);
