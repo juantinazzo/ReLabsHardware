@@ -1,5 +1,7 @@
-#define SLOT1_CS0 D8
-#define SLOT1_CS1 D8
-#define ETH_RST D0
-#define ETH_CS D2
-#define led D4
+#include <Arduino.h>
+
+#define SLOT1_CS0 8
+#define SLOT1_CS1 8
+#define ETH_RST 0
+#define ETH_CS 2
+#define led 4

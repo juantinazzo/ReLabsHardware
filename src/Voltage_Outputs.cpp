@@ -32,7 +32,7 @@ void setChannelVoltage(char channel, float mV)
     }
 }
 
-u_int16_t voltageToValue(char channel, float mV)
+uint16_t voltageToValue(char channel, float mV)
 {
     return mV * voltageOutputMultiplier[channel] + voltageOutputOffset[channel];
 }

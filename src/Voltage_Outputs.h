@@ -7,8 +7,8 @@
 
 void startVoltageOutputs();
 void setChannelVoltage(char channel, float mV);
-u_int16_t voltageToValue(char channel, float mV);
+uint16_t voltageToValue(char channel, float mV);
 
 extern bool voltageOutputsStatus[4];
 extern float voltageOutputMultiplier[4];
-extern u_int16_t voltageOutputOffset[4];
+extern uint16_t voltageOutputOffset[4];

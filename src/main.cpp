@@ -1,21 +1,18 @@
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-extern "C"
-{
-#include "user_interface.h"
-}
+#include <WiFi.h>
+#include <WebServer.h>
+
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
 #include <SPI.h>
 #include <ArduinoJson.h>
-
+#include <Ethernet.h>
 #include "Passwords.h"
 #include "Ethernet_Config.h"
 
-ESP8266WebServer server(80);
+WebServer server(80);
 
 void connectToStuff();
 void initOTA();
@@ -25,7 +22,7 @@ WiFiClient espClient;
 
 float voltageInputMultiplier[6][8];
 float voltageOutputMultiplier[4] = {1, 1, 1, 1};
-u_int16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
+uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
 
 DynamicJsonDocument doc(256);
@@ -202,7 +199,6 @@ void setup()
     randomSeed(micros());
     delay(50);
 
-    initOTA();
     pinMode(led, OUTPUT);
     digitalWrite(led, HIGH);
 
@@ -218,7 +214,7 @@ void setup()
         delay(500);
         Serial.print(".");
     }
-
+    initOTA();
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
@@ -230,7 +226,7 @@ void setup()
     startAnalogInputs();
     startExpanders();
     startVoltageOutputs();
-    connectToEthernet();
+    // connectToEthernet();
 }
 
 void loop()
