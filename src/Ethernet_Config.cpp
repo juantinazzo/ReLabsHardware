@@ -3,8 +3,19 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-EthernetClient ethClient;
-IPAddress ipAddress;
+/*
+    Si da error de compilacion la parte de red cambiar en
+    .platformio\packages\framework-arduinoespressif32\cores\esp32\Server.h
+
+    class Server: public Print
+        {
+        public:
+            void begin(uint16_t port = 0) {};
+            void begin() {};
+        };
+
+
+*/
 
 void resetEthernet(const uint8_t resetPin)
 {
@@ -22,6 +33,7 @@ void connectToEthernet()
     delay(50);
     byte *mac = new byte[6];
     macToArray(ETHERNET_MAC, mac);
+    IPAddress ipAddress;
     ipAddress.fromString(ETHERNET_IP);
 
     Ethernet.init(ETHERNET_CS_PIN);
@@ -31,7 +43,6 @@ void connectToEthernet()
     Serial.println(ipAddress);
     Ethernet.begin(mac, ipAddress);
     delay(200);
-
     Serial.print("Ethernet IP is: ");
     Serial.println(Ethernet.localIP());
 }
