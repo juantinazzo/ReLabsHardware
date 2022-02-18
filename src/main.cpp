@@ -258,6 +258,6 @@ void connectToStuff()
 
 void initOTA()
 {
-    ArduinoOTA.setHostname("ADQ");
+    ArduinoOTA.setHostname("ReLabs Module");
     ArduinoOTA.begin();
 }
