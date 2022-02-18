@@ -226,7 +226,7 @@ void setup()
     startAnalogInputs();
     startExpanders();
     startVoltageOutputs();
-    // connectToEthernet();
+    connectToEthernet();
 }
 
 void loop()
