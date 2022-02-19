@@ -22,7 +22,6 @@ WiFiServer server(80);
 EthernetServer ethernetServer(80);
 Application app;
 
-void connectToStuff();
 void initOTA();
 void reconnect();
 
@@ -38,16 +37,6 @@ bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
 
 void setGetsPosts()
 {
-    /*  server.on("/", handleRoot);
-
-      server.on("/analogInputs/", handleAnalogInputs);
-      server.on("/configGains/", handleConfigGains);
-      server.on("/readGains/", handleReadGains);
-      server.on("/status/", handleStatus);
-      server.on("/analogOutputs/", handleAnalogOutputs);
-
-      server.onNotFound(handleNotFound);*/
-
     app.get("/", &indexCmd);
     app.post("/analogInputs/", &handleAnalogInputs);
     app.post("/configGains/", &handleConfigGains);
@@ -102,37 +91,16 @@ void loop()
     if (ethernetClient.connected())
     {
         app.process(&ethernetClient);
-        delay(1);
+        delay(5);
         ethernetClient.stop();
     }
     if (client.connected())
     {
         app.process(&client);
-        // client.stop();
+        delay(5);
+        client.stop();
     }
 }
-
-void connectToStuff()
-{
-
-    WiFi.disconnect();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-
-    WiFi.begin(ssid, password);
-
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-}
-
 void initOTA()
 {
     ArduinoOTA.setHostname("ReLabsModule");
