@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 #define LOG(Message, Level, System, ...) (Logger::Log(Message, Level, System, ##__VA_ARGS__))
 #define LOG_NOTAG(Message, Level, System, ...)              \
     {                                                       \

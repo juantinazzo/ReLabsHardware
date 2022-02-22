@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "Server_Handlers.h"
 #include <ArduinoJson.h>
-#include "Analog_Inputs.h"
-#include "IO_expander.h"
-#include "Voltage_Outputs.h"
+#include "cards/Analog_Inputs.h"
+#include "hardware_libs/IO_expander.h"
+#include "cards/Voltage_Outputs.h"
 #include <aWOT.h>
 #include <ArduinoJson.h>
 

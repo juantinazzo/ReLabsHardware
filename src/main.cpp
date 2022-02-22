@@ -6,8 +6,8 @@
 #include <SPI.h>
 
 #include <Ethernet.h>
-#include "Passwords.h"
-#include "Ethernet_Config.h"
+#include "network/Passwords.h"
+#include "network/Ethernet_Config.h"
 #include <aWOT.h>
 
 static char sys[] = "main.cpp";
@@ -17,8 +17,6 @@ static char sys[] = "main.cpp";
     Si da error de compilacion mirar la nota en Ethernet_Config.cpp
 
 */
-
-#define SDEF(sname, ...) S sname __VA_OPT__(= {__VA_ARGS__})
 
 WiFiServer server(80);
 EthernetServer ethernetServer(80);
@@ -32,12 +30,12 @@ float voltageOutputMultiplier[4] = {1, 1, 1, 1};
 uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
 
-#include "Analog_Inputs.h"
-#include "IO_expander.h"
-#include "Voltage_Outputs.h"
-#include "Server_Handlers.h"
+#include "cards/Analog_Inputs.h"
+#include "hardware_libs/IO_expander.h"
+#include "cards/Voltage_Outputs.h"
+#include "network/Server_Handlers.h"
 
-#include "Logger.h"
+#include "utilities/Logger.h"
 
 void setGetsPosts()
 {

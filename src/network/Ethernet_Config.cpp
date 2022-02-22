@@ -2,7 +2,7 @@
 #include "Ethernet_Config.h"
 #include <SPI.h>
 #include <Ethernet.h>
-#include <Logger.h>
+#include <utilities/Logger.h>
 
 static char sys[] = "Ethernet_Config.cpp";
 
