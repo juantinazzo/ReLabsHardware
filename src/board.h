@@ -8,6 +8,7 @@
 #define SCK 18
 #define MISO 19
 #define MOSI 23
+#define POWER_RAILS 2
 
 // Most likely
 
@@ -23,6 +24,7 @@
 #define SLOT1_CS1 13
 #define SLOT2_CS0 12
 #define SLOT3_CS0 14
-#define SLOT4_CS0 16
+#define SLOT4_CS0 27
+#define SLOT5_CS0 26
 
-#define led LED_BUILTIN // 2
+#define led 36 // 2

@@ -6,17 +6,17 @@
 #include <SPI.h>
 
 #include <Ethernet.h>
-#include "Passwords.h"
-#include "Ethernet_Config.h"
+#include "network/Passwords.h"
+#include "network/Ethernet_Config.h"
 #include <aWOT.h>
+
+static char sys[] = "main.cpp";
 
 /*
 
     Si da error de compilacion mirar la nota en Ethernet_Config.cpp
 
 */
-
-#define SDEF(sname, ...) S sname __VA_OPT__(= {__VA_ARGS__})
 
 WiFiServer server(80);
 EthernetServer ethernetServer(80);
@@ -30,10 +30,12 @@ float voltageOutputMultiplier[4] = {1, 1, 1, 1};
 uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
 
-#include "Analog_Inputs.h"
-#include "IO_expander.h"
-#include "Voltage_Outputs.h"
-#include "Server_Handlers.h"
+#include "cards/Analog_Inputs.h"
+#include "hardware_libs/IO_expander.h"
+#include "cards/Voltage_Outputs.h"
+#include "network/Server_Handlers.h"
+
+#include "utilities/Logger.h"
 
 void setGetsPosts()
 {
@@ -47,31 +49,26 @@ void setGetsPosts()
 
 void setup()
 {
-    Serial.begin(115200);
     Wire.begin();
     randomSeed(micros());
     delay(50);
-
+    Logger::SetPriority(Info);
     pinMode(led, OUTPUT);
     digitalWrite(led, HIGH);
-
-    Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
+    LOG_NOTAG("\n\n", Info, sys);
+    LOG("Connecting to %s", Info, sys, ssid);
 
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
-        Serial.print(".");
+        LOG_NOTAG(".", Info, sys);
     }
+    LOG_NOTAG("\n", Info, sys);
     initOTA();
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
+    LOG("WiFi connected", Info, sys);
+    LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
 
     setGetsPosts();
     server.begin();

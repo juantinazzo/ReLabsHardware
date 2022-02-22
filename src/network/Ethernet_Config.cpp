@@ -2,6 +2,9 @@
 #include "Ethernet_Config.h"
 #include <SPI.h>
 #include <Ethernet.h>
+#include <utilities/Logger.h>
+
+static char sys[] = "Ethernet_Config.cpp";
 
 /*
     Si da error de compilacion la parte de red cambiar en
@@ -39,12 +42,11 @@ void connectToEthernet()
     Ethernet.init(ETHERNET_CS_PIN);
     resetEthernet(ETHERNET_RESET_PIN);
 
-    Serial.println("Starting ETHERNET connection...");
-    Serial.println(ipAddress);
+    LOG("Connecting via Ethernet", Info, sys);
+    LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
     Ethernet.begin(mac, ipAddress);
     delay(200);
-    Serial.print("Ethernet IP is: ");
-    Serial.println(Ethernet.localIP());
+    LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
 }
 
 void macToArray(const char *str, byte *bytes)
