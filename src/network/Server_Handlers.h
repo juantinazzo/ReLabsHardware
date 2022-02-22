@@ -1,3 +1,6 @@
+#ifndef SERVER_HANDLERS_H
+#define SERVER_HANDLERS_H
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <aWOT.h>
@@ -8,3 +11,5 @@ void handleAnalogOutputs(Request &req, Response &res);
 void handleConfigGains(Request &req, Response &res);
 void handleReadGains(Request &req, Response &res);
 void handleStatus(Request &req, Response &res);
+
+#endif

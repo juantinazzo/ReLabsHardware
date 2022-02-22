@@ -1,3 +1,6 @@
+#ifndef IO_EXPANDER_H
+#define IO_EXPANDER_H
+
 #include <Arduino.h>
 #include <Wire.h>
 
@@ -11,3 +14,5 @@ String printStatusExpander();
 void startExpanders();
 
 extern bool expanderStatus[8];
+
+#endif

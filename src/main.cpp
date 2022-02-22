@@ -1,14 +1,17 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
-#include <Wire.h>
-#include <Adafruit_ADS1X15.h>
-#include <SPI.h>
-
 #include <Ethernet.h>
+
+#include <aWOT.h>
+
 #include "network/Passwords.h"
 #include "network/Ethernet_Config.h"
-#include <aWOT.h>
+#include "cards/Analog_Inputs.h"
+#include "hardware_libs/IO_expander.h"
+#include "cards/Voltage_Outputs.h"
+#include "network/Server_Handlers.h"
+#include "utilities/Logger.h"
 
 static char sys[] = "main.cpp";
 
@@ -29,13 +32,6 @@ float voltageInputMultiplier[6][8];
 float voltageOutputMultiplier[4] = {1, 1, 1, 1};
 uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
-
-#include "cards/Analog_Inputs.h"
-#include "hardware_libs/IO_expander.h"
-#include "cards/Voltage_Outputs.h"
-#include "network/Server_Handlers.h"
-
-#include "utilities/Logger.h"
 
 void setGetsPosts()
 {

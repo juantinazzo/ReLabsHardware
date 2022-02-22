@@ -1,3 +1,6 @@
+#ifndef VOLTAGE_OUTPUTS_H
+#define VOLTAGE_OUTPUTS_H
+
 #include <Arduino.h>
 #include <MCP492X.h>
 #include "board.h"
@@ -12,3 +15,5 @@ uint16_t voltageToValue(char channel, float mV);
 extern bool voltageOutputsStatus[4];
 extern float voltageOutputMultiplier[4];
 extern uint16_t voltageOutputOffset[4];
+
+#endif

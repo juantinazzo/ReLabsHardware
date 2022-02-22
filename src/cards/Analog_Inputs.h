@@ -1,3 +1,6 @@
+#ifndef ANALOG_INPUTS_H
+#define ANALOG_INPUTS_H
+
 #include <Arduino.h>
 #include "board.h"
 #include <Wire.h>
@@ -17,3 +20,4 @@ const int16_t ranges[] = {21845, 16384, 16384, 16384, 16384, 16384};
 extern float voltageInputMultiplier[6][8];
 extern bool adsStatus[4];
 
+#endif
