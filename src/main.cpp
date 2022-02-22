@@ -10,6 +10,8 @@
 #include "Ethernet_Config.h"
 #include <aWOT.h>
 
+static char sys[] = "main.cpp";
+
 /*
 
     Si da error de compilacion mirar la nota en Ethernet_Config.cpp
@@ -35,6 +37,8 @@ bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
 #include "Voltage_Outputs.h"
 #include "Server_Handlers.h"
 
+#include "Logger.h"
+
 void setGetsPosts()
 {
     app.get("/", &indexCmd);
@@ -47,31 +51,26 @@ void setGetsPosts()
 
 void setup()
 {
-    Serial.begin(115200);
     Wire.begin();
     randomSeed(micros());
     delay(50);
-
+    Logger::SetPriority(Info);
     pinMode(led, OUTPUT);
     digitalWrite(led, HIGH);
-
-    Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
+    LOG_NOTAG("\n\n", Info, sys);
+    LOG("Connecting to %s", Info, sys, ssid);
 
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
-        Serial.print(".");
+        LOG_NOTAG(".", Info, sys);
     }
+    LOG_NOTAG("\n", Info, sys);
     initOTA();
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
+    LOG("WiFi connected", Info, sys);
+    LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
 
     setGetsPosts();
     server.begin();
