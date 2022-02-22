@@ -7,7 +7,6 @@
 
 #include "network/Passwords.h"
 #include "network/Ethernet_Config.h"
-#include "cards/Analog_Inputs.h"
 #include "hardware_libs/IO_expander.h"
 #include "cards/Voltage_Outputs.h"
 #include "network/Server_Handlers.h"
@@ -45,14 +44,13 @@ void setGetsPosts()
 
 void setup()
 {
-    Wire.begin();
     randomSeed(micros());
     delay(50);
     Logger::SetPriority(Info);
     pinMode(led, OUTPUT);
     digitalWrite(led, HIGH);
-    LOG_NOTAG("\n\n", Info, sys);
-    LOG("Connecting to %s", Info, sys, ssid);
+
+    LOG("Connecting to %s ", Info, sys, ssid);
 
     WiFi.begin(ssid, password);
 
@@ -61,7 +59,6 @@ void setup()
         delay(500);
         LOG_NOTAG(".", Info, sys);
     }
-    LOG_NOTAG("\n", Info, sys);
     initOTA();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
@@ -69,7 +66,6 @@ void setup()
     setGetsPosts();
     server.begin();
 
-    startAnalogInputs();
     startExpanders();
     startVoltageOutputs();
     connectToEthernet();

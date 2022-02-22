@@ -1,13 +1,14 @@
 #include <Arduino.h>
 #include "Server_Handlers.h"
 #include <ArduinoJson.h>
-#include "cards/Analog_Inputs.h"
 #include "hardware_libs/IO_expander.h"
 #include "cards/Voltage_Outputs.h"
 #include <aWOT.h>
 #include <ArduinoJson.h>
+#include "cards/V_I_Card.h"
 
 DynamicJsonDocument doc(256);
+V_I_Card VI0(0);
 
 void indexCmd(Request &req, Response &res)
 {
@@ -42,13 +43,15 @@ void handleAnalogInputs(Request &req, Response &res)
             String value = String(valueC);
             if (argName == "ADCREAD")
             {
-                measureAndReturn(value.toInt(), &temp);
+                if (value.toInt() < 4)
+                    VI0.measureAndReturn(value.toInt(), &temp);
                 message += "\t{ " + temp + " }";
                 message += ",\n";
             }
             if (argName == "ADCRAW")
             {
-                measureAndReturnRAW(value.toInt(), &temp);
+                if (value.toInt() < 4)
+                    VI0.measureAndReturnRAW(value.toInt(), &temp);
                 message += "\t{ " + temp + " }";
                 message += ",\n";
             }
@@ -110,7 +113,7 @@ void handleConfigGains(Request &req, Response &res)
             deserializeJson(doc, argName);
             for (uint8_t j = 0; j < 6; j++)
             {
-                LoadAnalogInputGains(argName.toInt(), j, doc[String(j)]);
+                VI0.LoadGains(argName.toInt(), j, doc[String(j)]);
             }
         }
     }
@@ -125,14 +128,14 @@ void handleReadGains(Request &req, Response &res)
 {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
-    res.print(ReturnAnalogInputGains());
+    res.print(VI0.ReturnGains());
     res.status(200);
 }
 
 void handleStatus(Request &req, Response &res)
 {
     String status = "[{\"data\":";
-    status += printStatusADS();
+    status += VI0.getStatus();
     status += ", " + printStatusExpander();
     status += "]}";
     res.set("Access-Control-Allow-Origin", "*");
