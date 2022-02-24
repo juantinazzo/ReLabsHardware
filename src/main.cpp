@@ -2,18 +2,17 @@
 #include "board.h"
 #include <Ethernet.h>
 #include <aWOT.h>
-#include "network/Passwords.h"
 #include "network/Ethernet_Config.h"
 #include "hardware_libs/IO_expander.h"
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
-#include "utilities/ioOffsetGains.h"
 #include "systemManager.h"
 #include <ESP32Servo.h>
 
 #ifdef USE_WIFI
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+#include "network/Passwords.h"
 #endif
 #ifdef USE_BT
 #include "BluetoothSerial.h"
@@ -36,18 +35,11 @@ BluetoothSerial SerialBT;
 
 EthernetServer ethernetServer(80);
 Application app;
-
-float voltageOutputMultiplier[4] = {1, 1, 1, 1};
-uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
-bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
-
-#include <ESP32Servo.h>
-
 systemManager sM;
-// create four servo objects
+
+bool expanderStatus[8];
+
 Servo servo1;
-ESP32PWM pwm;
-// Published values for SG90 servos; adjust if needed
 #define minUs 1000
 #define maxUs 2000
 
