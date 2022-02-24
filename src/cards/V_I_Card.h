@@ -6,6 +6,7 @@
 #include "board.h"
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
+#include "utilities/ioOffsetGains.h"
 
 class V_I_Card : public Card
 {
@@ -24,7 +25,7 @@ private:
     void readWithGain(int channel, float *result, int gain_s, int16_t *raw);
     const adsGain_t gains[6] = {GAIN_TWOTHIRDS, GAIN_ONE, GAIN_TWO, GAIN_FOUR, GAIN_EIGHT, GAIN_SIXTEEN};
     const int16_t ranges[6] = {21845, 16384, 16384, 16384, 16384, 16384};
-    float voltageInputMultiplier[6][4];
+    ioOffsetGains V_I_OG[6][4];
     bool adsStatus[2];
     Adafruit_ADS1115 ads[2];
     int addr;

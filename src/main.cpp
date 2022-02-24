@@ -2,11 +2,12 @@
 #include "board.h"
 #ifdef USE_WIFI
 #include <WiFi.h>
+#include <ArduinoOTA.h>
 #endif
 #ifdef USE_BT
 #include "BluetoothSerial.h"
 #endif
-#include <ArduinoOTA.h>
+
 #include <Ethernet.h>
 #include <aWOT.h>
 #include "network/Passwords.h"
@@ -15,6 +16,9 @@
 #include "cards/Voltage_Outputs.h"
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
+#include "utilities/ioOffsetGains.h"
+
+#include <ESP32Servo.h>
 
 static char sys[] = "main.cpp";
 
@@ -34,10 +38,21 @@ BluetoothSerial SerialBT;
 EthernetServer ethernetServer(80);
 Application app;
 
-float voltageInputMultiplier[6][8];
 float voltageOutputMultiplier[4] = {1, 1, 1, 1};
 uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
+
+#include <ESP32Servo.h>
+
+// create four servo objects
+Servo servo1;
+ESP32PWM pwm;
+// Published values for SG90 servos; adjust if needed
+#define minUs 1000
+#define maxUs 2000
+
+#define servo1Pin 25
+int pos = 0;
 
 void setGetsPosts()
 {
@@ -84,6 +99,9 @@ void setup()
     startExpanders();
     startVoltageOutputs();
     connectToEthernet();
+    ESP32PWM::allocateTimer(0);
+    servo1.setPeriodHertz(50); // Standard 50hz servo
+    servo1.attach(servo1Pin, minUs, maxUs);
 }
 
 void loop()
@@ -101,6 +119,10 @@ void loop()
         app.process(&ethernetClient);
         delay(5);
         ethernetClient.stop();
+        servo1.write(pos);
+        pos += 5;
+        if (pos > 180)
+            pos = 0;
     }
 
 #ifdef USE_WIFI

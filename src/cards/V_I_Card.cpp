@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "V_I_Card.h"
 #include "utilities/Logger.h"
+#include "utilities/ioOffsetGains.h"
 
 void V_I_Card::measureAndReturn(byte channel, String *text)
 {
@@ -68,14 +69,14 @@ void V_I_Card::readWithRange(int channel, float *result, int *gain_s)
         readVal = channel % 2 == 0 ? ads[channel / 2].readADC_Differential_0_1() : ads[channel / 2].readADC_Differential_2_3();
     } while ((readVal > 0 ? readVal : -readVal) < ranges[*gain_s] && *gain_s != 5);
 
-    *result = readVal * voltageInputMultiplier[*gain_s][channel];
+    *result = readVal * V_I_OG[*gain_s][channel].getGain() + V_I_OG[*gain_s][channel].getOffset();
 }
 
 void V_I_Card::readWithGain(int channel, float *result, int gain_s, int16_t *raw)
 {
     ads[channel / 2].setGain(gains[gain_s]);
     *raw = channel % 2 == 0 ? ads[channel / 2].readADC_Differential_0_1() : ads[channel / 2].readADC_Differential_2_3();
-    *result = *raw * voltageInputMultiplier[gain_s][channel];
+    *result = *raw * V_I_OG[gain_s][channel].getGain() + V_I_OG[gain_s][channel].getOffset();
 }
 
 V_I_Card::V_I_Card(int addr_to_use) : Card()
@@ -91,7 +92,8 @@ void V_I_Card::Start()
     {
         for (byte j = 0; j < 4; j++)
         {
-            voltageInputMultiplier[i][j] = 1;
+            V_I_OG[i][j].setGain(1);
+            V_I_OG[i][j].setOffset(0);
         }
     }
     Wire.begin();
@@ -110,7 +112,7 @@ void V_I_Card::Start()
 
 void V_I_Card::LoadGains(int channel, int setting, float value)
 {
-    voltageInputMultiplier[setting][channel] = value;
+    V_I_OG[setting][channel].setGain(value);
 }
 
 String V_I_Card::ReturnGains()
@@ -121,7 +123,7 @@ String V_I_Card::ReturnGains()
         ret += "{\"channel\":" + String(i);
         for (byte j = 0; j < 6; j++)
         {
-            ret += ",\"" + String(j) + "\":" + String(voltageInputMultiplier[j][i]);
+            ret += ",\"" + String(j) + "\":" + String(V_I_OG[j][i].getGain());
         }
         ret += i == 7 ? "}" : "},";
     }
