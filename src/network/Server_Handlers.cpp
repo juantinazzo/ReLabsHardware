@@ -2,13 +2,15 @@
 #include "Server_Handlers.h"
 #include <ArduinoJson.h>
 #include "hardware_libs/IO_expander.h"
-#include "cards/Voltage_Outputs.h"
+//#include "cards/Voltage_Outputs.h"
 #include <aWOT.h>
 #include <ArduinoJson.h>
 #include "cards/V_I_Card.h"
+#include "cards/V_O_Card.h"
 
 DynamicJsonDocument doc(256);
 V_I_Card VI0(0);
+V_O_Card VO0(0), VO4(4);
 
 void indexCmd(Request &req, Response &res)
 {
@@ -84,7 +86,7 @@ void handleAnalogOutputs(Request &req, Response &res)
             String value = String(valueC);
             if (argName.substring(0, 4) == "VSET")
             {
-                setChannelVoltage((char)argName.substring(4).toInt(), value.toFloat());
+                VO0.setChannelVoltage((char)argName.substring(4).toInt(), value.toFloat());
             }
         }
         else

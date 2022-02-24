@@ -13,7 +13,7 @@
 #include "network/Passwords.h"
 #include "network/Ethernet_Config.h"
 #include "hardware_libs/IO_expander.h"
-#include "cards/Voltage_Outputs.h"
+//#include "cards/Voltage_Outputs.h"
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
 #include "utilities/ioOffsetGains.h"
@@ -97,7 +97,6 @@ void setup()
     LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
 #endif
     startExpanders();
-    startVoltageOutputs();
     connectToEthernet();
     ESP32PWM::allocateTimer(0);
     servo1.setPeriodHertz(50); // Standard 50hz servo

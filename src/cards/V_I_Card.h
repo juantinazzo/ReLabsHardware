@@ -14,7 +14,7 @@ public:
     V_I_Card(int addr_to_use = 0);
     void measureAndReturn(byte channel, String *text);
     void measureAndReturnRAW(byte channel, String *text);
-    void Start();
+    void start();
     String getStatus() const;
     String ReturnGains();
     void LoadGains(int channel, int setting, float value);

@@ -8,7 +8,7 @@ class Card
 public:
     Card(String new_name = "null");
     virtual String getStatus(void) const;
-    virtual void Start();
+    virtual void start();
     virtual ~Card();
 
 private:

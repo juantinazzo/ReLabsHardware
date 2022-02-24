@@ -36,9 +36,9 @@ void connectToEthernet()
     delay(50);
     byte *mac = new byte[6];
     macToArray(ETHERNET_MAC, mac);
-    IPAddress ipAddress;
+    IPAddress ipAddress, ipFail;
     ipAddress.fromString(ETHERNET_IP);
-
+    ipFail.fromString("0.0.0.0");
     Ethernet.init(ETHERNET_CS_PIN);
     resetEthernet(ETHERNET_RESET_PIN);
 
@@ -46,7 +46,10 @@ void connectToEthernet()
     LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
     Ethernet.begin(mac, ipAddress);
     delay(200);
-    LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
+    if (ipAddress.toString() != ipFail.toString())
+        LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
+    else
+        LOG("Failed to connect to Ethernet, got IP: " + Ethernet.localIP().toString(), Error, sys);
 }
 
 void macToArray(const char *str, byte *bytes)

@@ -16,6 +16,6 @@ String Card::getStatus(void) const
     return "";
 }
 
-void Card::Start()
+void Card::start()
 {
 }

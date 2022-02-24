@@ -82,10 +82,10 @@ void V_I_Card::readWithGain(int channel, float *result, int gain_s, int16_t *raw
 V_I_Card::V_I_Card(int addr_to_use) : Card()
 {
     addr = addr_to_use;
-    Start();
+    start();
 }
 
-void V_I_Card::Start()
+void V_I_Card::start()
 {
 
     for (byte i = 0; i < 6; i++)

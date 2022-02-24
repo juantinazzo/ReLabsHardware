@@ -1,4 +1,3 @@
-#include <Arduino.h>
 char *eLogLevelName[] = {
     "",
     "[Info]\t",

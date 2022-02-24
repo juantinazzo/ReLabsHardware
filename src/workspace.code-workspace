@@ -18,7 +18,8 @@
 			"memory": "cpp",
 			"random": "cpp",
 			"initializer_list": "cpp",
-			"typeinfo": "cpp"
+			"typeinfo": "cpp",
+			"unordered_set": "cpp"
 		}
 	}
 }
