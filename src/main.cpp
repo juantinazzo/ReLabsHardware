@@ -1,10 +1,14 @@
 #include <Arduino.h>
+#include "board.h"
+#ifdef USE_WIFI
 #include <WiFi.h>
+#endif
+#ifdef USE_BT
+#include "BluetoothSerial.h"
+#endif
 #include <ArduinoOTA.h>
 #include <Ethernet.h>
-
 #include <aWOT.h>
-
 #include "network/Passwords.h"
 #include "network/Ethernet_Config.h"
 #include "hardware_libs/IO_expander.h"
@@ -19,8 +23,13 @@ static char sys[] = "main.cpp";
     Si da error de compilacion mirar la nota en Ethernet_Config.cpp
 
 */
-
+#ifdef USE_WIFI
 WiFiServer server(80);
+#endif
+#ifdef USE_BT
+BluetoothSerial SerialBT;
+#endif
+
 EthernetServer ethernetServer(80);
 Application app;
 
@@ -31,6 +40,9 @@ float voltageInputMultiplier[6][8];
 float voltageOutputMultiplier[4] = {1, 1, 1, 1};
 uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
+
+#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 void setGetsPosts()
 {
@@ -51,7 +63,7 @@ void setup()
     digitalWrite(led, HIGH);
 
     LOG("Connecting to %s ", Info, sys, ssid);
-
+#ifdef USE_WIFI
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED)
@@ -62,9 +74,15 @@ void setup()
     initOTA();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
+#endif
 
     setGetsPosts();
+#ifdef USE_WIFI
     server.begin();
+#endif
+#ifdef USE_BT
+    LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
+#endif
 
     startExpanders();
     startVoltageOutputs();
@@ -73,22 +91,36 @@ void setup()
 
 void loop()
 {
-    // server.handleClient();
+    //
     ArduinoOTA.handle();
+#ifdef USE_WIFI
+    server.handleClient();
     WiFiClient client = server.available();
+#endif
     EthernetClient ethernetClient = ethernetServer.available();
+
     if (ethernetClient.connected())
     {
         app.process(&ethernetClient);
         delay(5);
         ethernetClient.stop();
     }
+
+#ifdef USE_WIFI
     if (client.connected())
     {
         app.process(&client);
         delay(5);
         client.stop();
     }
+#endif
+
+#ifdef USE_BT
+    if (SerialBT.available())
+    {
+        Serial.write(SerialBT.read());
+    }
+#endif
 }
 void initOTA()
 {
