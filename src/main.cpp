@@ -23,6 +23,7 @@ static char sys[] = "main.cpp";
     Si da error de compilacion mirar la nota en Ethernet_Config.cpp
 
 */
+
 #ifdef USE_WIFI
 WiFiServer server(80);
 #endif
@@ -33,16 +34,10 @@ BluetoothSerial SerialBT;
 EthernetServer ethernetServer(80);
 Application app;
 
-void initOTA();
-void reconnect();
-
 float voltageInputMultiplier[6][8];
 float voltageOutputMultiplier[4] = {1, 1, 1, 1};
 uint16_t voltageOutputOffset[4] = {2047, 2047, 2047, 2047};
 bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
-
-#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 void setGetsPosts()
 {
@@ -62,8 +57,8 @@ void setup()
     pinMode(led, OUTPUT);
     digitalWrite(led, HIGH);
 
-    LOG("Connecting to %s ", Info, sys, ssid);
 #ifdef USE_WIFI
+    LOG("Connecting to %s ", Info, sys, ssid);
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED)
@@ -71,19 +66,21 @@ void setup()
         delay(500);
         LOG_NOTAG(".", Info, sys);
     }
-    initOTA();
+    ArduinoOTA.setHostname("ReLabsModule");
+    ArduinoOTA.begin();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
 #endif
 
     setGetsPosts();
+
 #ifdef USE_WIFI
     server.begin();
 #endif
+
 #ifdef USE_BT
     LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
 #endif
-
     startExpanders();
     startVoltageOutputs();
     connectToEthernet();
@@ -91,9 +88,9 @@ void setup()
 
 void loop()
 {
-    //
-    ArduinoOTA.handle();
+
 #ifdef USE_WIFI
+    ArduinoOTA.handle();
     server.handleClient();
     WiFiClient client = server.available();
 #endif
@@ -121,9 +118,4 @@ void loop()
         Serial.write(SerialBT.read());
     }
 #endif
-}
-void initOTA()
-{
-    ArduinoOTA.setHostname("ReLabsModule");
-    ArduinoOTA.begin();
 }
