@@ -6,6 +6,15 @@
 
 MCP4922 voltageDAC0, voltageDAC1;
 
+V_O_Card::V_O_Card()
+{
+}
+
+void V_O_Card::setSlot(uint8_t SLOT)
+{
+    SLOT_p = SLOT;
+}
+
 V_O_Card::V_O_Card(uint8_t SLOT)
 {
     SLOT_p = SLOT;
@@ -32,7 +41,8 @@ void V_O_Card::start()
     for (char i = 0; i < 4; i++)
         setChannelVoltage(i, 0);
 
-    LOG("VO%d Started", Info, sys, SLOT_p);
+    LOG("VO%d started", Info, sys, SLOT_p);
+    is_running = true;
 }
 
 void V_O_Card::setChannelVoltage(char channel, float mV)
@@ -59,4 +69,9 @@ void V_O_Card::setChannelVoltage(char channel, float mV)
 uint16_t V_O_Card::voltageToValue(char channel, float mV)
 {
     return mV * V_O_GO[channel].getGain() + V_O_GO[channel].getOffset();
+}
+
+bool V_O_Card::isRunning()
+{
+    return is_running;
 }

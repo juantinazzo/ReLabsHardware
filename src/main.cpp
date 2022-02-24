@@ -1,5 +1,16 @@
 #include <Arduino.h>
 #include "board.h"
+#include <Ethernet.h>
+#include <aWOT.h>
+#include "network/Passwords.h"
+#include "network/Ethernet_Config.h"
+#include "hardware_libs/IO_expander.h"
+#include "network/Server_Handlers.h"
+#include "utilities/Logger.h"
+#include "utilities/ioOffsetGains.h"
+#include "systemManager.h"
+#include <ESP32Servo.h>
+
 #ifdef USE_WIFI
 #include <WiFi.h>
 #include <ArduinoOTA.h>
@@ -7,18 +18,6 @@
 #ifdef USE_BT
 #include "BluetoothSerial.h"
 #endif
-
-#include <Ethernet.h>
-#include <aWOT.h>
-#include "network/Passwords.h"
-#include "network/Ethernet_Config.h"
-#include "hardware_libs/IO_expander.h"
-//#include "cards/Voltage_Outputs.h"
-#include "network/Server_Handlers.h"
-#include "utilities/Logger.h"
-#include "utilities/ioOffsetGains.h"
-
-#include <ESP32Servo.h>
 
 static char sys[] = "main.cpp";
 
@@ -44,6 +43,7 @@ bool adsStatus[4], expanderStatus[8], voltageOutputsStatus[4];
 
 #include <ESP32Servo.h>
 
+systemManager sM;
 // create four servo objects
 Servo servo1;
 ESP32PWM pwm;
@@ -85,6 +85,7 @@ void setup()
     ArduinoOTA.begin();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
+    return true;
 #endif
 
     setGetsPosts();
@@ -92,15 +93,19 @@ void setup()
 #ifdef USE_WIFI
     server.begin();
 #endif
-
 #ifdef USE_BT
     LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
 #endif
+
     startExpanders();
     connectToEthernet();
     ESP32PWM::allocateTimer(0);
     servo1.setPeriodHertz(50); // Standard 50hz servo
     servo1.attach(servo1Pin, minUs, maxUs);
+
+    sM.startVI(0);
+    sM.startVO(0);
+    sM.startVO(4);
 }
 
 void loop()

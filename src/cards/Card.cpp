@@ -19,3 +19,8 @@ String Card::getStatus(void) const
 void Card::start()
 {
 }
+
+bool Card::isRunning()
+{
+    return is_running;
+}

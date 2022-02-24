@@ -11,10 +11,13 @@
 class V_I_Card : public Card
 {
 public:
-    V_I_Card(int addr_to_use = 0);
+    V_I_Card();
+    V_I_Card(int addr_to_use);
     void measureAndReturn(byte channel, String *text);
     void measureAndReturnRAW(byte channel, String *text);
     void start();
+    void setADDR(int addr_to_use);
+    bool isRunning();
     String getStatus() const;
     String ReturnGains();
     void LoadGains(int channel, int setting, float value);
@@ -30,6 +33,7 @@ private:
     Adafruit_ADS1115 ads[2];
     int addr;
     const char sys[9] = "V_I_Card";
+    bool is_running = 0;
 };
 
 #endif

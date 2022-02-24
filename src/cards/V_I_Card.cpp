@@ -79,10 +79,19 @@ void V_I_Card::readWithGain(int channel, float *result, int gain_s, int16_t *raw
     *result = *raw * V_I_OG[gain_s][channel].getGain() + V_I_OG[gain_s][channel].getOffset();
 }
 
+V_I_Card::V_I_Card() : Card()
+{
+}
+
 V_I_Card::V_I_Card(int addr_to_use) : Card()
 {
     addr = addr_to_use;
     start();
+}
+
+void V_I_Card::setADDR(int addr_to_use)
+{
+    addr = addr_to_use;
 }
 
 void V_I_Card::start()
@@ -107,7 +116,13 @@ void V_I_Card::start()
         adsStatus[0] = ads[0].begin(0x4A);
         adsStatus[1] = ads[1].begin(0x4B);
     }
-    LOG("ADS%d Started", Info, sys, addr);
+    if (adsStatus[0] == 1 && adsStatus[1] == 1)
+    {
+        LOG("ADS%d Started", Info, sys, addr);
+        is_running = true;
+    }
+    else
+        LOG("ADS%d not started: Module 0: %d Module 1: %d ", Info, sys, addr, adsStatus[0], adsStatus[1]);
 }
 
 void V_I_Card::LoadGains(int channel, int setting, float value)
@@ -151,4 +166,9 @@ String V_I_Card::getStatus() const
 
 V_I_Card::~V_I_Card()
 {
+}
+
+bool V_I_Card::isRunning()
+{
+    return is_running;
 }

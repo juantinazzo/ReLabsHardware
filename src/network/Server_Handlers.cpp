@@ -5,12 +5,11 @@
 //#include "cards/Voltage_Outputs.h"
 #include <aWOT.h>
 #include <ArduinoJson.h>
-#include "cards/V_I_Card.h"
-#include "cards/V_O_Card.h"
+#include "systemManager.h"
+
+extern systemManager sM;
 
 DynamicJsonDocument doc(256);
-V_I_Card VI0(0);
-V_O_Card VO0(0), VO4(4);
 
 void indexCmd(Request &req, Response &res)
 {
@@ -43,17 +42,17 @@ void handleAnalogInputs(Request &req, Response &res)
         {
             String argName = String(argNameC);
             String value = String(valueC);
+            uint8_t val = value.toInt();
+            uint8_t addr = val < 4 ? 0 : (val < 8 ? 1 : 2);
             if (argName == "ADCREAD")
             {
-                if (value.toInt() < 4)
-                    VI0.measureAndReturn(value.toInt(), &temp);
+                sM.VI[addr].measureAndReturn(value.toInt(), &temp);
                 message += "\t{ " + temp + " }";
                 message += ",\n";
             }
             if (argName == "ADCRAW")
             {
-                if (value.toInt() < 4)
-                    VI0.measureAndReturnRAW(value.toInt(), &temp);
+                sM.VI[addr].measureAndReturnRAW(value.toInt(), &temp);
                 message += "\t{ " + temp + " }";
                 message += ",\n";
             }
@@ -84,9 +83,12 @@ void handleAnalogOutputs(Request &req, Response &res)
         {
             String argName = String(argNameC);
             String value = String(valueC);
+            uint8_t cn = (char)argName.substring(4).toInt();
+            uint8_t index = cn < 4 ? 0 : 1;
+            cn = index == 0 ? cn : cn - 4;
             if (argName.substring(0, 4) == "VSET")
             {
-                VO0.setChannelVoltage((char)argName.substring(4).toInt(), value.toFloat());
+                sM.VO[index].setChannelVoltage((char)cn, value.toFloat());
             }
         }
         else
@@ -115,7 +117,7 @@ void handleConfigGains(Request &req, Response &res)
             deserializeJson(doc, argName);
             for (uint8_t j = 0; j < 6; j++)
             {
-                VI0.LoadGains(argName.toInt(), j, doc[String(j)]);
+                sM.VI[0].LoadGains(argName.toInt(), j, doc[String(j)]);
             }
         }
     }
@@ -130,14 +132,14 @@ void handleReadGains(Request &req, Response &res)
 {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
-    res.print(VI0.ReturnGains());
+    res.print(sM.VI[0].ReturnGains());
     res.status(200);
 }
 
 void handleStatus(Request &req, Response &res)
 {
     String status = "[{\"data\":";
-    status += VI0.getStatus();
+    status += sM.VI[0].getStatus();
     status += ", " + printStatusExpander();
     status += "]}";
     res.set("Access-Control-Allow-Origin", "*");
