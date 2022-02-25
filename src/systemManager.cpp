@@ -21,6 +21,33 @@ bool systemManager::startVO(uint8_t SLOT)
         VO_index++;
     return true;
 };
+
+bool systemManager::startIO(uint8_t SLOT)
+{
+    if (IO_index > 5)
+        return false;
+    IO[VO_index].setSlot(SLOT);
+    IO[VO_index].start();
+    if (IO[IO_index].isRunning())
+        IO_index++;
+    else
+        return false;
+    return true;
+};
+
+bool systemManager::startSERVO(uint8_t output_pin)
+{
+    if (SERVO_index > 2)
+        return false;
+    SERVO[SERVO_index].setOutputPin(output_pin);
+    SERVO[SERVO_index].start();
+    if (SERVO[SERVO_index].isRunning())
+        SERVO_index++;
+    else
+        return false;
+    return true;
+};
+
 bool systemManager::startVI(uint8_t addr)
 {
     if (VI_index > 1)

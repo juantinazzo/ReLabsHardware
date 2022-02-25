@@ -45,7 +45,7 @@ void V_O_Card::start()
     is_running = true;
 }
 
-void V_O_Card::setChannelVoltage(char channel, float mV)
+void V_O_Card::setChannelVoltage(uint8_t channel, float mV)
 {
     switch (channel)
     {
@@ -66,7 +66,7 @@ void V_O_Card::setChannelVoltage(char channel, float mV)
     }
 }
 
-uint16_t V_O_Card::voltageToValue(char channel, float mV)
+uint16_t V_O_Card::voltageToValue(uint8_t channel, float mV)
 {
     return mV * V_O_GO[channel].getGain() + V_O_GO[channel].getOffset();
 }

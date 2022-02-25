@@ -7,7 +7,6 @@
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
 #include "systemManager.h"
-#include <ESP32Servo.h>
 
 #ifdef USE_WIFI
 #include <WiFi.h>
@@ -38,13 +37,6 @@ Application app;
 systemManager sM;
 
 bool expanderStatus[8];
-
-Servo servo1;
-#define minUs 1000
-#define maxUs 2000
-
-#define servo1Pin 25
-int pos = 0;
 
 void setGetsPosts()
 {
@@ -91,13 +83,12 @@ void setup()
 
     startExpanders();
     connectToEthernet();
-    ESP32PWM::allocateTimer(0);
-    servo1.setPeriodHertz(50); // Standard 50hz servo
-    servo1.attach(servo1Pin, minUs, maxUs);
 
     sM.startVI(0);
     sM.startVO(0);
     sM.startVO(4);
+    sM.startIO(0);
+    sM.startSERVO(SPARE_IO0);
 }
 
 void loop()
@@ -115,10 +106,6 @@ void loop()
         app.process(&ethernetClient);
         delay(5);
         ethernetClient.stop();
-        servo1.write(pos);
-        pos += 5;
-        if (pos > 180)
-            pos = 0;
     }
 
 #ifdef USE_WIFI

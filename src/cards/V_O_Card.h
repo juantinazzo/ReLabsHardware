@@ -13,13 +13,13 @@ public:
     V_O_Card();
     V_O_Card(uint8_t SLOT);
     void start();
-    void setChannelVoltage(char channel, float mV);
+    void setChannelVoltage(uint8_t channel, float mV);
     bool isRunning();
     void setSlot(uint8_t SLOT);
 
 private:
     uint8_t SLOT_p;
-    uint16_t voltageToValue(char channel, float mV);
+    uint16_t voltageToValue(uint8_t channel, float mV);
     bool status[4];
     ioOffsetGains V_O_GO[4];
     const char sys[9] = "V_O_Card";

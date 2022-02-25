@@ -21,6 +21,10 @@
 #define SLOT4_CS0 27
 #define SLOT5_CS0 26
 
+#define SPARE_IO0 32
+#define SPARE_IO1 33
+#define SPARE_IO2 25
+
 #define led 36 // 2
 
 #define USE_BT
