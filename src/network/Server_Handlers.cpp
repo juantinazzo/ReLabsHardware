@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include "Server_Handlers.h"
 #include <ArduinoJson.h>
-#include "cards/Analog_Inputs.h"
-#include "hardware_libs/IO_expander.h"
-#include "cards/Voltage_Outputs.h"
 #include <aWOT.h>
 #include <ArduinoJson.h>
+#include "systemManager.h"
+
+extern systemManager sM;
 
 DynamicJsonDocument doc(256);
 
-void indexCmd(Request &req, Response &res)
+DEF_HANDLER(indexCmd)
 {
 
     // P macro for printing strings from program memory
@@ -28,7 +28,7 @@ void indexCmd(Request &req, Response &res)
     res.printP(index);
 }
 
-void handleAnalogInputs(Request &req, Response &res)
+DEF_HANDLER(handleAnalogInputs)
 {
 
     String temp;
@@ -40,15 +40,17 @@ void handleAnalogInputs(Request &req, Response &res)
         {
             String argName = String(argNameC);
             String value = String(valueC);
+            uint8_t val = value.toInt();
+            uint8_t addr = val < 4 ? 0 : (val < 8 ? 1 : 2);
             if (argName == "ADCREAD")
             {
-                measureAndReturn(value.toInt(), &temp);
+                sM.VI[addr].measureAndReturn(value.toInt(), &temp);
                 message += "\t{ " + temp + " }";
                 message += ",\n";
             }
             if (argName == "ADCRAW")
             {
-                measureAndReturnRAW(value.toInt(), &temp);
+                sM.VI[addr].measureAndReturnRAW(value.toInt(), &temp);
                 message += "\t{ " + temp + " }";
                 message += ",\n";
             }
@@ -66,7 +68,7 @@ void handleAnalogInputs(Request &req, Response &res)
     res.status(200);
 }
 
-void handleAnalogOutputs(Request &req, Response &res)
+DEF_HANDLER(handleAnalogOutputs)
 {
 
     String message = "{\"data\":[\n";
@@ -79,9 +81,12 @@ void handleAnalogOutputs(Request &req, Response &res)
         {
             String argName = String(argNameC);
             String value = String(valueC);
+            uint8_t cn = (char)argName.substring(4).toInt();
+            uint8_t index = cn < 4 ? 0 : 1;
+            cn = index == 0 ? cn : cn - 4;
             if (argName.substring(0, 4) == "VSET")
             {
-                setChannelVoltage((char)argName.substring(4).toInt(), value.toFloat());
+                sM.VO[index].setChannelVoltage((char)cn, value.toFloat());
             }
         }
         else
@@ -95,7 +100,7 @@ void handleAnalogOutputs(Request &req, Response &res)
     res.status(200);
 }
 
-void handleConfigGains(Request &req, Response &res)
+DEF_HANDLER(handleConfigGains)
 {
 
     String temp;
@@ -110,7 +115,7 @@ void handleConfigGains(Request &req, Response &res)
             deserializeJson(doc, argName);
             for (uint8_t j = 0; j < 6; j++)
             {
-                LoadAnalogInputGains(argName.toInt(), j, doc[String(j)]);
+                sM.VI[0].LoadGains(argName.toInt(), j, doc[String(j)]);
             }
         }
     }
@@ -121,19 +126,19 @@ void handleConfigGains(Request &req, Response &res)
     res.status(200);
 }
 
-void handleReadGains(Request &req, Response &res)
+DEF_HANDLER(handleReadGains)
 {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
-    res.print(ReturnAnalogInputGains());
+    res.print(sM.VI[0].ReturnGains());
     res.status(200);
 }
 
-void handleStatus(Request &req, Response &res)
+DEF_HANDLER(handleStatus)
 {
     String status = "[{\"data\":";
-    status += printStatusADS();
-    status += ", " + printStatusExpander();
+    status += sM.VI[0].getStatus();
+    // status += ", " + printStatusExpander();
     status += "]}";
     res.set("Access-Control-Allow-Origin", "*");
     res.print(status);

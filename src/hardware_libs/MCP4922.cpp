@@ -17,20 +17,29 @@
  * | SCK     | SCK       | 3           | 4           |
  * | MOSI    | SDI       | 4           | 5           |
  * | your CS | CS        | 2           | 3           |
- * 
+ *
  * Where "your CS" is whichever pin you'd like to use as chip select on
  * your arduino board.
  */
 
 #include <SPI.h>
-#include "MCP492X.h"
+#include "MCP4922.h"
 
-MCP492X::MCP492X(uint8_t pinChipSelect)
+MCP4922::MCP4922()
+{
+}
+
+MCP4922::MCP4922(uint8_t pinChipSelect)
 {
     _pinChipSelect = pinChipSelect;
 }
+void MCP4922::begin(uint8_t pinChipSelect)
+{
+    _pinChipSelect = pinChipSelect;
+    begin();
+}
 
-void MCP492X::begin()
+void MCP4922::begin()
 {
     ::pinMode(_pinChipSelect, OUTPUT);
     ::digitalWrite(_pinChipSelect, 1);
@@ -38,13 +47,13 @@ void MCP492X::begin()
     _spiSettings = SPISettings(20000000, MSBFIRST, SPI_MODE0);
 }
 
-void MCP492X::analogWrite(unsigned int value)
+void MCP4922::analogWrite(unsigned int value)
 {
     analogWrite(0, value);
 }
 
 // Only applies to MCP4922
-void MCP492X::analogWrite(bool odd, unsigned int value)
+void MCP4922::analogWrite(bool odd, unsigned int value)
 {
     analogWrite(
         odd, // Pass channel
@@ -56,7 +65,7 @@ void MCP492X::analogWrite(bool odd, unsigned int value)
 
 // If you want full control, this method lets you set all config bits
 // See MCP492X datasheet page 18 ("5.0 Serial interface") for details
-void MCP492X::analogWrite(
+void MCP4922::analogWrite(
     bool odd, bool buffered, bool gain, bool active, unsigned int value)
 {
 
@@ -74,13 +83,13 @@ void MCP492X::analogWrite(
     _endTransmission();
 }
 
-void MCP492X::_beginTransmission()
+void MCP4922::_beginTransmission()
 {
     ::digitalWrite(_pinChipSelect, 0);
     SPI.beginTransaction(_spiSettings);
 }
 
-void MCP492X::_endTransmission()
+void MCP4922::_endTransmission()
 {
     SPI.endTransaction();
     ::digitalWrite(_pinChipSelect, 1);

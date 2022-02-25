@@ -17,7 +17,7 @@
  * | SCK     | SCK       | 3           | 4           |
  * | MOSI    | SDI       | 4           | 5           |
  * | your CS | CS        | 2           | 3           |
- * 
+ *
  * Where "your CS" is whichever pin you'd like to use as chip select on
  * your arduino board.
  */
@@ -26,16 +26,17 @@
 #include <SPI.h>
 
 // Ensure we don't double-define the functionality
-#ifndef MCP492X_h
-#define MCP492X_h
+#ifndef MCP4922_h
+#define MCP4922_h
 
-class MCP492X
+class MCP4922
 {
 public:
     // Constructor, takes the chip select pin
     // Use outside any functions:
     // `MCP492X myDac(pinNumber);`
-    MCP492X(uint8_t);
+    MCP4922();
+    MCP4922(uint8_t);
 
     // Initilize, starts the SPI bus. Call in setup()
     // Example:
@@ -45,7 +46,7 @@ public:
     // }
     //
     void begin();
-
+    void begin(uint8_t pinChipSelect);
     // Writes a 12 bit value to the output.
     // If on the MCP4922, defaults to DAC output 0 (A).
     // Example:

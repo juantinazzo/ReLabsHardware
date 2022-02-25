@@ -1,10 +1,17 @@
+#ifndef SERVER_HANDLERS_H
+#define SERVER_HANDLERS_H
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <aWOT.h>
 
-void indexCmd(Request &req, Response &res);
-void handleAnalogInputs(Request &req, Response &res);
-void handleAnalogOutputs(Request &req, Response &res);
-void handleConfigGains(Request &req, Response &res);
-void handleReadGains(Request &req, Response &res);
-void handleStatus(Request &req, Response &res);
+#define DEF_HANDLER(name) void name(Request &req, Response &res)
+
+DEF_HANDLER(indexCmd);
+DEF_HANDLER(handleAnalogInputs);
+DEF_HANDLER(handleAnalogOutputs);
+DEF_HANDLER(handleConfigGains);
+DEF_HANDLER(handleReadGains);
+DEF_HANDLER(handleStatus);
+
+#endif

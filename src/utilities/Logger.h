@@ -84,15 +84,14 @@ private:
     {
         if (tag)
         {
+            Serial.print("\n");
             Serial.print(eLogLevelName[level]);
             Serial.print("[");
             Serial.print(sys);
             Serial.print("]\t");
         }
         Serial.print(message);
-        if (tag)
-            Serial.print("\n");
-    }
+        }
 };
 
 #endif

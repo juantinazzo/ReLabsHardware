@@ -1,9 +1,9 @@
 #include <Arduino.h>
-#include "Analog_Inputs.h"
+#include "V_I_Card.h"
+#include "utilities/Logger.h"
+#include "utilities/ioOffsetGains.h"
 
-Adafruit_ADS1115 ads[4];
-
-void measureAndReturn(byte channel, String *text)
+void V_I_Card::measureAndReturn(byte channel, String *text)
 {
     digitalWrite(led, LOW);
     String valueStr;
@@ -15,7 +15,7 @@ void measureAndReturn(byte channel, String *text)
         readWithRange(channel, &results, &gain_s);
         valueStr = String(results);
         contentJson = "\"value\":" + String(results, 6) + ", \"unit\":\"mV\", \"gain\":" + String(gain_s, DEC) + ", \"channel\":" + String(channel, DEC) + ",\"status\": \"ok\"";
-        //Serial.println(valueStr);
+        // Serial.println(valueStr);
     }
     else
     {
@@ -26,7 +26,7 @@ void measureAndReturn(byte channel, String *text)
     *text = contentJson;
 }
 
-void measureAndReturnRAW(byte channel, String *text)
+void V_I_Card::measureAndReturnRAW(byte channel, String *text)
 {
     digitalWrite(led, LOW);
     String valueStr;
@@ -58,7 +58,7 @@ void measureAndReturnRAW(byte channel, String *text)
     digitalWrite(led, HIGH);
 }
 
-void readWithRange(int channel, float *result, int *gain_s)
+void V_I_Card::readWithRange(int channel, float *result, int *gain_s)
 {
     int16_t readVal;
     *gain_s = -1;
@@ -69,47 +69,76 @@ void readWithRange(int channel, float *result, int *gain_s)
         readVal = channel % 2 == 0 ? ads[channel / 2].readADC_Differential_0_1() : ads[channel / 2].readADC_Differential_2_3();
     } while ((readVal > 0 ? readVal : -readVal) < ranges[*gain_s] && *gain_s != 5);
 
-    *result = readVal * voltageInputMultiplier[*gain_s][channel];
+    *result = readVal * V_I_OG[*gain_s][channel].getGain() + V_I_OG[*gain_s][channel].getOffset();
 }
 
-void readWithGain(int channel, float *result, int gain_s, int16_t *raw)
+void V_I_Card::readWithGain(int channel, float *result, int gain_s, int16_t *raw)
 {
     ads[channel / 2].setGain(gains[gain_s]);
     *raw = channel % 2 == 0 ? ads[channel / 2].readADC_Differential_0_1() : ads[channel / 2].readADC_Differential_2_3();
-    *result = *raw * voltageInputMultiplier[gain_s][channel];
+    *result = *raw * V_I_OG[gain_s][channel].getGain() + V_I_OG[gain_s][channel].getOffset();
 }
 
-void startAnalogInputs()
+V_I_Card::V_I_Card() : Card()
+{
+}
+
+V_I_Card::V_I_Card(int addr_to_use) : Card()
+{
+    addr = addr_to_use;
+    start();
+}
+
+void V_I_Card::setADDR(int addr_to_use)
+{
+    addr = addr_to_use;
+}
+
+void V_I_Card::start()
 {
 
     for (byte i = 0; i < 6; i++)
     {
-        for (byte j = 0; j < 8; j++)
+        for (byte j = 0; j < 4; j++)
         {
-            voltageInputMultiplier[i][j] = 1;
+            V_I_OG[i][j].setGain(1);
+            V_I_OG[i][j].setOffset(0);
         }
     }
-
-    adsStatus[0] = ads[0].begin();
-    adsStatus[1] = ads[1].begin(0x49);
-    adsStatus[2] = ads[2].begin(0x4A);
-    adsStatus[3] = ads[3].begin(0x4B);
+    Wire.begin();
+    if (addr == 0)
+    {
+        adsStatus[0] = ads[0].begin();
+        adsStatus[1] = ads[1].begin(0x49);
+    }
+    else
+    {
+        adsStatus[0] = ads[0].begin(0x4A);
+        adsStatus[1] = ads[1].begin(0x4B);
+    }
+    if (adsStatus[0] == 1 && adsStatus[1] == 1)
+    {
+        LOG("ADS%d Started", Info, sys, addr);
+        is_running = true;
+    }
+    else
+        LOG("ADS%d not started: Module 0: %d Module 1: %d ", Info, sys, addr, adsStatus[0], adsStatus[1]);
 }
 
-void LoadAnalogInputGains(int channel, int setting, float value)
+void V_I_Card::LoadGains(int channel, int setting, float value)
 {
-    voltageInputMultiplier[setting][channel] = value;
+    V_I_OG[setting][channel].setGain(value);
 }
 
-String ReturnAnalogInputGains()
+String V_I_Card::ReturnGains()
 {
     String ret = "{\"data\":[";
-    for (byte i = 0; i < 8; i++)
+    for (byte i = 0; i < 4; i++)
     {
         ret += "{\"channel\":" + String(i);
         for (byte j = 0; j < 6; j++)
         {
-            ret += ",\"" + String(j) + "\":" + String(voltageInputMultiplier[j][i]);
+            ret += ",\"" + String(j) + "\":" + String(V_I_OG[j][i].getGain());
         }
         ret += i == 7 ? "}" : "},";
     }
@@ -117,22 +146,29 @@ String ReturnAnalogInputGains()
     return ret;
 }
 
-String printStatusADS()
+String V_I_Card::getStatus() const
 {
     String res = "{ \"hardware\": ads, ";
-    Serial.print("\n ADS STATUS:\n\t");
-    for (byte i = 0; i < 4; i++)
+    for (byte i = 0; i < 2; i++)
     {
-        Serial.print("ads");
-        Serial.print(i);
-        Serial.print(adsStatus[i] ? ": Active\n\t" : ": Inactive\n\t");
+        LOG("ads", Info, sys);
+        LOG_NOTAG("%d", Info, sys, i);
+        LOG_NOTAG(adsStatus[i] ? ": Active" : ": Inactive", Info, sys);
         res += "\"" + String(i) + "\": ";
         res += adsStatus[i] ? "1" : "0";
-        if (i != 3)
+        if (i != 1)
             res += ", ";
     }
     res += "}";
-    Serial.print("\n");
 
     return res;
+}
+
+V_I_Card::~V_I_Card()
+{
+}
+
+bool V_I_Card::isRunning()
+{
+    return is_running;
 }
