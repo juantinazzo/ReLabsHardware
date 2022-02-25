@@ -9,7 +9,7 @@ extern systemManager sM;
 
 DynamicJsonDocument doc(256);
 
-void indexCmd(Request &req, Response &res)
+DEF_HANDLER(indexCmd)
 {
 
     // P macro for printing strings from program memory
@@ -28,7 +28,7 @@ void indexCmd(Request &req, Response &res)
     res.printP(index);
 }
 
-void handleAnalogInputs(Request &req, Response &res)
+DEF_HANDLER(handleAnalogInputs)
 {
 
     String temp;
@@ -68,7 +68,7 @@ void handleAnalogInputs(Request &req, Response &res)
     res.status(200);
 }
 
-void handleAnalogOutputs(Request &req, Response &res)
+DEF_HANDLER(handleAnalogOutputs)
 {
 
     String message = "{\"data\":[\n";
@@ -100,7 +100,7 @@ void handleAnalogOutputs(Request &req, Response &res)
     res.status(200);
 }
 
-void handleConfigGains(Request &req, Response &res)
+DEF_HANDLER(handleConfigGains)
 {
 
     String temp;
@@ -126,7 +126,7 @@ void handleConfigGains(Request &req, Response &res)
     res.status(200);
 }
 
-void handleReadGains(Request &req, Response &res)
+DEF_HANDLER(handleReadGains)
 {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
@@ -134,11 +134,11 @@ void handleReadGains(Request &req, Response &res)
     res.status(200);
 }
 
-void handleStatus(Request &req, Response &res)
+DEF_HANDLER(handleStatus)
 {
     String status = "[{\"data\":";
     status += sM.VI[0].getStatus();
-   // status += ", " + printStatusExpander();
+    // status += ", " + printStatusExpander();
     status += "]}";
     res.set("Access-Control-Allow-Origin", "*");
     res.print(status);
