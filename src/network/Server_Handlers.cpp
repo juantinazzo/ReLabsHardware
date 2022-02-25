@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "Server_Handlers.h"
 #include <ArduinoJson.h>
-#include "hardware_libs/IO_expander.h"
 #include <aWOT.h>
 #include <ArduinoJson.h>
 #include "systemManager.h"
@@ -139,7 +138,7 @@ void handleStatus(Request &req, Response &res)
 {
     String status = "[{\"data\":";
     status += sM.VI[0].getStatus();
-    status += ", " + printStatusExpander();
+   // status += ", " + printStatusExpander();
     status += "]}";
     res.set("Access-Control-Allow-Origin", "*");
     res.print(status);

@@ -3,7 +3,6 @@
 #include <Ethernet.h>
 #include <aWOT.h>
 #include "network/Ethernet_Config.h"
-#include "hardware_libs/IO_expander.h"
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
 #include "systemManager.h"
@@ -81,7 +80,6 @@ void setup()
     LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
 #endif
 
-    startExpanders();
     connectToEthernet();
 
     sM.startVI(0);
@@ -89,6 +87,7 @@ void setup()
     sM.startVO(4);
     sM.startIO(0);
     sM.startSERVO(SPARE_IO0);
+    sM.startEXP(0);
 }
 
 void loop()

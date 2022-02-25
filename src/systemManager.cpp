@@ -3,7 +3,6 @@
 #include "cards/V_O_Card.h"
 #include "utilities/Logger.h"
 #include "systemManager.h"
-#include "hardware_libs/IO_expander.h"
 
 static char sys[] = "systemManager";
 
@@ -58,9 +57,16 @@ bool systemManager::startVI(uint8_t addr)
         VI_index++;
     return true;
 }
-bool systemManager::startIOExp()
+bool systemManager::startEXP(uint8_t number)
 {
-    startExpanders();
+    if (EXP_index > 7)
+        return false;
+    EXP[EXP_index].setNumber(number);
+    EXP[EXP_index].start();
+    if (EXP[EXP_index].isRunning())
+        EXP_index++;
+    else
+        return false;
     return true;
 }
 
