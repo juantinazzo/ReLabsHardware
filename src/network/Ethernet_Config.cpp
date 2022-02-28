@@ -4,7 +4,7 @@
 #include <Ethernet.h>
 #include <utilities/Logger.h>
 
-static char sys[] = "Ethernet_Config.cpp";
+static char sys[] = "Eth_Config";
 
 /*
     Si da error de compilacion la parte de red cambiar en

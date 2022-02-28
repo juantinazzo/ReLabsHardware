@@ -17,6 +17,8 @@ public:
     bool startIO(uint8_t SLOT);
     bool startSERVO(uint8_t output_pin);
     bool startEXP(uint8_t number);
+    void startRails();
+    void setRails(bool status);
     ~systemManager();
     V_I_Card VI[3];
     V_O_Card VO[2];

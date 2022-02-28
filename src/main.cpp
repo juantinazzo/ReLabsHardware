@@ -81,7 +81,8 @@ void setup()
 #endif
 
     connectToEthernet();
-
+    sM.startRails();
+    sM.setRails(true);
     sM.startVI(0);
     sM.startVO(0);
     sM.startVO(4);
