@@ -6,10 +6,11 @@
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
 #include "systemManager.h"
+#include <ArduinoOTA.h>
 
 #ifdef USE_WIFI
 #include <WiFi.h>
-#include <ArduinoOTA.h>
+
 #include "network/Passwords.h"
 #endif
 #ifdef USE_BT
@@ -32,6 +33,7 @@ BluetoothSerial SerialBT;
 #endif
 
 EthernetServer ethernetServer(80);
+IPAddress currentIP;
 Application app;
 systemManager sM;
 
@@ -81,6 +83,7 @@ void setup()
 #endif
 
     connectToEthernet();
+    ArduinoOTA.begin(currentIP, "arduino", "password", InternalStorage);
     sM.startRails();
     sM.setRails(true);
     sM.startVI(0);
@@ -107,7 +110,7 @@ void loop()
         delay(5);
         ethernetClient.stop();
     }
-
+    ArduinoOTA.poll();
 #ifdef USE_WIFI
     if (client.connected())
     {

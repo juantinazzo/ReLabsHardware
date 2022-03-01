@@ -20,6 +20,7 @@ static char sys[] = "Eth_Config";
 
 */
 
+
 void resetEthernet(const uint8_t resetPin)
 {
     pinMode(resetPin, OUTPUT);
@@ -46,10 +47,23 @@ void connectToEthernet()
     LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
     Ethernet.begin(mac, ipAddress);
     delay(200);
-    if (ipAddress.toString() != ipFail.toString())
+    if (Ethernet.linkStatus() == LinkON)
         LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
     else
-        LOG("Failed to connect to Ethernet, got IP: " + Ethernet.localIP().toString(), Error, sys);
+    {
+        if (Ethernet.hardwareStatus() == EthernetNoHardware)
+        {
+            LOG("No Ethernet module detected", Error, sys);
+        }
+        else if (Ethernet.linkStatus() == LinkOFF)
+        {
+            LOG("Ethernet cable not connected", Error, sys);
+        }
+        else
+            LOG("Failed to connect to Ethernet, got IP: " + Ethernet.localIP().toString(), Error, sys);
+    }
+    extern IPAddress currentIP;
+    currentIP = Ethernet.localIP();
 }
 
 void macToArray(const char *str, byte *bytes)
