@@ -1,11 +1,12 @@
 #include <Arduino.h>
-#include "Ethernet_Config.h"
+#include "EthernetModule.h"
 #include <SPI.h>
 #include <Ethernet.h>
 #include <utilities/Logger.h>
+#include "utilities/ConfigSaver.h"
 
-static char sys[] = "Eth_Config";
-
+static char sys[] = "EthModule";
+extern ConfigSaver CS;
 /*
     Si da error de compilacion la parte de red cambiar en
     .platformio\packages\framework-arduinoespressif32\cores\esp32\Server.h
@@ -20,28 +21,31 @@ static char sys[] = "Eth_Config";
 
 */
 
-
-void resetEthernet(const uint8_t resetPin)
+EthernetModule::EthernetModule()
 {
-    pinMode(resetPin, OUTPUT);
-    digitalWrite(resetPin, HIGH);
+}
+
+void EthernetModule::reset()
+{
+    pinMode(ETH_RST, OUTPUT);
+    digitalWrite(ETH_RST, HIGH);
     delay(50);
-    digitalWrite(resetPin, LOW);
+    digitalWrite(ETH_RST, LOW);
     delay(50);
-    digitalWrite(resetPin, HIGH);
+    digitalWrite(ETH_RST, HIGH);
     delay(50);
 }
 
-void connectToEthernet()
+void EthernetModule::connect()
 {
-    delay(50);
     byte *mac = new byte[6];
-    macToArray(ETHERNET_MAC, mac);
-    IPAddress ipAddress, ipFail;
-    ipAddress.fromString(ETHERNET_IP);
-    ipFail.fromString("0.0.0.0");
-    Ethernet.init(ETHERNET_CS_PIN);
-    resetEthernet(ETHERNET_RESET_PIN);
+    char macA[18], ipA[16];
+    CS.getEth(ipA, macA);
+    macToArray(macA, mac);
+    IPAddress ipAddress;
+    ipAddress.fromString(ipA);
+    Ethernet.init(ETH_CS);
+    reset();
 
     LOG("Connecting via Ethernet", Info, sys);
     LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
@@ -51,6 +55,7 @@ void connectToEthernet()
         LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
     else
     {
+        LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
         if (Ethernet.hardwareStatus() == EthernetNoHardware)
         {
             LOG("No Ethernet module detected", Error, sys);
@@ -66,7 +71,7 @@ void connectToEthernet()
     currentIP = Ethernet.localIP();
 }
 
-void macToArray(const char *str, byte *bytes)
+void EthernetModule::macToArray(const char *str, byte *bytes)
 {
     for (int i = 0; i < 6; i++)
     {
