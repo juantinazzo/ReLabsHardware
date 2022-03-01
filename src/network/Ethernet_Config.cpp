@@ -3,9 +3,10 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <utilities/Logger.h>
+#include "utilities/ConfigSaver.h"
 
 static char sys[] = "Eth_Config";
-
+extern ConfigSaver CS;
 /*
     Si da error de compilacion la parte de red cambiar en
     .platformio\packages\framework-arduinoespressif32\cores\esp32\Server.h
@@ -20,7 +21,6 @@ static char sys[] = "Eth_Config";
 
 */
 
-
 void resetEthernet(const uint8_t resetPin)
 {
     pinMode(resetPin, OUTPUT);
@@ -34,14 +34,14 @@ void resetEthernet(const uint8_t resetPin)
 
 void connectToEthernet()
 {
-    delay(50);
     byte *mac = new byte[6];
-    macToArray(ETHERNET_MAC, mac);
-    IPAddress ipAddress, ipFail;
-    ipAddress.fromString(ETHERNET_IP);
-    ipFail.fromString("0.0.0.0");
-    Ethernet.init(ETHERNET_CS_PIN);
-    resetEthernet(ETHERNET_RESET_PIN);
+    char macA[18], ipA[16];
+    CS.getEth(ipA, macA);
+    macToArray(macA, mac);
+    IPAddress ipAddress;
+    ipAddress.fromString(ipA);
+    Ethernet.init(ETH_CS);
+    resetEthernet(ETH_RST);
 
     LOG("Connecting via Ethernet", Info, sys);
     LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
@@ -51,6 +51,7 @@ void connectToEthernet()
         LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
     else
     {
+        LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
         if (Ethernet.hardwareStatus() == EthernetNoHardware)
         {
             LOG("No Ethernet module detected", Error, sys);

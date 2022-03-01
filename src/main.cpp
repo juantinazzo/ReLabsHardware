@@ -5,13 +5,15 @@
 #include "network/Ethernet_Config.h"
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
+#include "utilities/ConfigSaver.h"
 #include "systemManager.h"
 #include <ArduinoOTA.h>
+#include <Preferences.h>
 
 #ifdef USE_WIFI
 #include <WiFi.h>
 
-#include "network/Passwords.h"
+//#include "network/Passwords.h"
 #endif
 #ifdef USE_BT
 #include "BluetoothSerial.h"
@@ -36,6 +38,8 @@ EthernetServer ethernetServer(80);
 IPAddress currentIP;
 Application app;
 systemManager sM;
+ConfigSaver CS;
+// Preferences preferences;
 
 bool expanderStatus[8];
 
@@ -54,10 +58,11 @@ void setup()
     randomSeed(micros());
     delay(50);
     Logger::SetPriority(Info);
-    pinMode(led, OUTPUT);
-    digitalWrite(led, HIGH);
+    CS.begin();
 
 #ifdef USE_WIFI
+    char ssid[30], password[30];
+    CS.getWiFi(ssid, password);
     LOG("Connecting to %s ", Info, sys, ssid);
     WiFi.begin(ssid, password);
 
@@ -81,9 +86,10 @@ void setup()
 #ifdef USE_BT
     LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
 #endif
-
+    char user[30], uploadpassword[30];
+    CS.getOTA(user, uploadpassword);
     connectToEthernet();
-    ArduinoOTA.begin(currentIP, "arduino", "password", InternalStorage);
+    ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
     sM.startRails();
     sM.setRails(true);
     sM.startVI(0);

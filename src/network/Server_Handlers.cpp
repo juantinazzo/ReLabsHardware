@@ -4,8 +4,10 @@
 #include <aWOT.h>
 #include <ArduinoJson.h>
 #include "systemManager.h"
+#include "utilities/ConfigSaver.h"
 
 extern systemManager sM;
+extern ConfigSaver CS;
 
 DynamicJsonDocument doc(256);
 
@@ -26,6 +28,9 @@ DEF_HANDLER(indexCmd)
     res.set("Content-Type", "text/html");
     res.set("Access-Control-Allow-Origin", "*");
     res.printP(index);
+    char pwd[20], user[20];
+    CS.getOTA(user, pwd);
+    res.printf("User: %s\n Password: %s", user, pwd);
 }
 
 DEF_HANDLER(handleAnalogInputs)
