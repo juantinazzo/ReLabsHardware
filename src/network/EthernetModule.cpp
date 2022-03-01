@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "Ethernet_Config.h"
+#include "EthernetModule.h"
 #include <SPI.h>
 #include <Ethernet.h>
 #include <utilities/Logger.h>
 #include "utilities/ConfigSaver.h"
 
-static char sys[] = "Eth_Config";
+static char sys[] = "EthModule";
 extern ConfigSaver CS;
 /*
     Si da error de compilacion la parte de red cambiar en
@@ -21,18 +21,22 @@ extern ConfigSaver CS;
 
 */
 
-void resetEthernet(const uint8_t resetPin)
+EthernetModule::EthernetModule()
 {
-    pinMode(resetPin, OUTPUT);
-    digitalWrite(resetPin, HIGH);
+}
+
+void EthernetModule::reset()
+{
+    pinMode(ETH_RST, OUTPUT);
+    digitalWrite(ETH_RST, HIGH);
     delay(50);
-    digitalWrite(resetPin, LOW);
+    digitalWrite(ETH_RST, LOW);
     delay(50);
-    digitalWrite(resetPin, HIGH);
+    digitalWrite(ETH_RST, HIGH);
     delay(50);
 }
 
-void connectToEthernet()
+void EthernetModule::connect()
 {
     byte *mac = new byte[6];
     char macA[18], ipA[16];
@@ -41,7 +45,7 @@ void connectToEthernet()
     IPAddress ipAddress;
     ipAddress.fromString(ipA);
     Ethernet.init(ETH_CS);
-    resetEthernet(ETH_RST);
+    reset();
 
     LOG("Connecting via Ethernet", Info, sys);
     LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
@@ -67,7 +71,7 @@ void connectToEthernet()
     currentIP = Ethernet.localIP();
 }
 
-void macToArray(const char *str, byte *bytes)
+void EthernetModule::macToArray(const char *str, byte *bytes)
 {
     for (int i = 0; i < 6; i++)
     {

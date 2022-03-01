@@ -2,7 +2,7 @@
 #include "board.h"
 #include <Ethernet.h>
 #include <aWOT.h>
-#include "network/Ethernet_Config.h"
+#include "network/EthernetModule.h"
 #include "network/Server_Handlers.h"
 #include "utilities/Logger.h"
 #include "utilities/ConfigSaver.h"
@@ -39,6 +39,7 @@ IPAddress currentIP;
 Application app;
 systemManager sM;
 ConfigSaver CS;
+EthernetModule EM;
 // Preferences preferences;
 
 bool expanderStatus[8];
@@ -88,7 +89,7 @@ void setup()
 #endif
     char user[30], uploadpassword[30];
     CS.getOTA(user, uploadpassword);
-    connectToEthernet();
+    EM.connect();
     ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
     sM.startRails();
     sM.setRails(true);
