@@ -14,12 +14,14 @@ public:
     void setEth(char *ip);
     void setEth(char *ip, char *MAC);
     void setOTA(char *username, char *password);
+    void setHardware(char *item, char *value);
     void getGainOffset(ioOffsetGains *data, char *name);
     void getWiFi(char *accessPoint, char *password);
     void getWiFi(char *accessPoint, char *password, char *ip);
     void getEth(char *ip);
     void getEth(char *ip, char *MAC);
     void getOTA(char *username, char *password);
+    void getHardware(char *item, char *value);
     void begin();
 
 private:

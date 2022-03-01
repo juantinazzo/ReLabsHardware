@@ -8,12 +8,9 @@
 #include "utilities/ConfigSaver.h"
 #include "systemManager.h"
 #include <ArduinoOTA.h>
-#include <Preferences.h>
 
 #ifdef USE_WIFI
 #include <WiFi.h>
-
-//#include "network/Passwords.h"
 #endif
 #ifdef USE_BT
 #include "BluetoothSerial.h"
@@ -40,7 +37,6 @@ Application app;
 systemManager sM;
 ConfigSaver CS;
 EthernetModule EM;
-// Preferences preferences;
 
 bool expanderStatus[8];
 

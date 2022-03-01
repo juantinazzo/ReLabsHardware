@@ -36,6 +36,16 @@ void ConfigSaver::begin()
     else
         LOG("Ethernet config found", Info, sys);
     preferences.end();
+    preferences.begin("hardware", false);
+    if (preferences.isKey("MB_VER") == 0)
+        preferences.putString("MB_VER", "V1.0.0");
+    if (preferences.isKey("FIRM_VER") == 0)
+        preferences.putString("FIRM_VER", "V0.7.1");
+    char mb[10], sw[10];
+    CPY(mb, MB_VER);
+    CPY(sw, FIRM_VER);
+    LOG("Motherboard version: %s\t Firmware version: %s", Info, sys,mb,sw);
+    preferences.end();
 }
 
 void ConfigSaver::setGainOffset(ioOffsetGains *data, char *name)
@@ -88,7 +98,7 @@ void ConfigSaver::setOTA(char *username, char *password)
 
 void ConfigSaver::getGainOffset(ioOffsetGains *data, char *name)
 {
-    preferences.begin(name, false);
+    preferences.begin(name, true);
     data->setOffset(preferences.getFloat("OFFSET"));
     data->setGain(preferences.getFloat("GAIN"));
     preferences.end();
@@ -96,7 +106,7 @@ void ConfigSaver::getGainOffset(ioOffsetGains *data, char *name)
 
 void ConfigSaver::getWiFi(char *accessPoint, char *password)
 {
-    preferences.begin("wifi", false);
+    preferences.begin("wifi", true);
     CPY(accessPoint, AP);
     CPY(password, PWD);
     preferences.end();
@@ -104,7 +114,7 @@ void ConfigSaver::getWiFi(char *accessPoint, char *password)
 
 void ConfigSaver::getWiFi(char *accessPoint, char *password, char *ip)
 {
-    preferences.begin("wifi", false);
+    preferences.begin("wifi", true);
     CPY(accessPoint, AP);
     CPY(password, PWD);
     CPY(ip, IP);
@@ -113,14 +123,14 @@ void ConfigSaver::getWiFi(char *accessPoint, char *password, char *ip)
 
 void ConfigSaver::getEth(char *ip)
 {
-    preferences.begin("eth", false);
+    preferences.begin("eth", true);
     CPY(ip, IP);
     preferences.end();
 }
 
 void ConfigSaver::getEth(char *ip, char *mac)
 {
-    preferences.begin("eth", false);
+    preferences.begin("eth", true);
     CPY(ip, IP);
     CPY(mac, MAC);
     preferences.end();
@@ -128,8 +138,22 @@ void ConfigSaver::getEth(char *ip, char *mac)
 
 void ConfigSaver::getOTA(char *username, char *password)
 {
-    preferences.begin("ota", false);
+    preferences.begin("ota", true);
     CPY(username, USER);
     CPY(password, PWD);
+    preferences.end();
+}
+
+void ConfigSaver::setHardware(char *item, char *value)
+{
+    preferences.begin("hardware", false);
+    preferences.putString(item, value);
+    preferences.end();
+}
+
+void ConfigSaver::getHardware(char *item, char *value)
+{
+    preferences.begin("hardware", true);
+    CPY(value, item);
     preferences.end();
 }
