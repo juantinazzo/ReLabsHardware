@@ -70,6 +70,16 @@ bool systemManager::startEXP(uint8_t number)
     return true;
 }
 
+void systemManager::startRails()
+{
+    pinMode(POWER_RAILS, OUTPUT);
+    digitalWrite(POWER_RAILS, 0);
+}
+void systemManager::setRails(bool status)
+{
+    digitalWrite(POWER_RAILS, status);
+}
+
 systemManager::~systemManager()
 {
 }

@@ -4,7 +4,7 @@
 #include <Ethernet.h>
 #include <utilities/Logger.h>
 
-static char sys[] = "Ethernet_Config.cpp";
+static char sys[] = "Eth_Config";
 
 /*
     Si da error de compilacion la parte de red cambiar en
@@ -19,6 +19,7 @@ static char sys[] = "Ethernet_Config.cpp";
 
 
 */
+
 
 void resetEthernet(const uint8_t resetPin)
 {
@@ -46,10 +47,23 @@ void connectToEthernet()
     LOG("Desired IP Address: " + ipAddress.toString(), Info, sys);
     Ethernet.begin(mac, ipAddress);
     delay(200);
-    if (ipAddress.toString() != ipFail.toString())
+    if (Ethernet.linkStatus() == LinkON)
         LOG("Ethernet IP is: " + Ethernet.localIP().toString(), Info, sys);
     else
-        LOG("Failed to connect to Ethernet, got IP: " + Ethernet.localIP().toString(), Error, sys);
+    {
+        if (Ethernet.hardwareStatus() == EthernetNoHardware)
+        {
+            LOG("No Ethernet module detected", Error, sys);
+        }
+        else if (Ethernet.linkStatus() == LinkOFF)
+        {
+            LOG("Ethernet cable not connected", Error, sys);
+        }
+        else
+            LOG("Failed to connect to Ethernet, got IP: " + Ethernet.localIP().toString(), Error, sys);
+    }
+    extern IPAddress currentIP;
+    currentIP = Ethernet.localIP();
 }
 
 void macToArray(const char *str, byte *bytes)
