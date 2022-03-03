@@ -6,6 +6,19 @@
 #include "board.h"
 #include <Wire.h>
 
+#define MCP23016_GPIO0 0x00   // Data port register 0
+#define MCP23016_GPIO1 0x01   // Data port register 1
+#define MCP23016_OLAT0 0x02   // Access output latch register 0
+#define MCP23016_OLAT1 0x03   // Access output latch register 1
+#define MCP23016_IPOL0 0x04   // Access input polarity port register 0
+#define MCP23016_IPOL1 0x05   // Access input polarity port register 1
+#define MCP23016_IODIR0 0x06  // I/O direction register 0
+#define MCP23016_IODIR1 0x07  // I/O direction register 1
+#define MCP23016_INTCAP0 0x08 // Interrupt capture 0
+#define MCP23016_INTCAP1 0x09 // Interrupt capture 1
+#define MCP23016_IOCON0 0x0A  // I/O Expander control register 0
+#define MCP23016_IOCON1 0x0B  // I/O Expander control register 1
+
 class Expander_Card : public Card
 {
 public:

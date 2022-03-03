@@ -3,19 +3,37 @@
 #include <Preferences.h>
 #include "Logger.h"
 #include "ioOffsetGains.h"
+#include "network/Passwords.h"
+#include <nvs_flash.h>
 
 Preferences preferences;
 
 #define CPY(name, key) strcpy(name, preferences.getString(#key, "").c_str())
+#define FOR4(var) for (uint8_t var; var < 4; var++)
 
 static char sys[] = "ConfigSaver";
+extern char temp[30];
 
 ConfigSaver::ConfigSaver()
 {
 }
 
+void ConfigSaver::destroyEverthing()
+{
+    nvs_flash_erase(); // erase the NVS partition and...
+    nvs_flash_init();  // initialize the NVS partition.
+    //preferences.begin("hardware", false);
+    //preferences.putBool("cleaned", true);
+    //ESP.restart();
+}
+
 void ConfigSaver::begin()
 {
+   /* preferences.begin("hardware", false);
+    if (preferences.isKey("cleaned") == 0)
+    {
+        destroyEverthing();
+    }*/
     preferences.begin("ota", false);
     if (preferences.isKey("USER") == 0)
     {
@@ -44,14 +62,43 @@ void ConfigSaver::begin()
     char mb[10], sw[10];
     CPY(mb, MB_VER);
     CPY(sw, FIRM_VER);
-    LOG("Motherboard version: %s\t Firmware version: %s", Info, sys,mb,sw);
+    LOG("Motherboard version: %s\t Firmware version: %s", Info, sys, mb, sw);
     preferences.end();
+
+    preferences.begin("wifi", false);
+    if (preferences.isKey("AP") == 0)
+    {
+        preferences.putString("AP", ssid);
+        preferences.putString("PWD", password);
+        LOG("No WiFi config found. Setting up default from Passwords.h", Error, sys);
+    }
+    else
+        LOG("WiFi config found", Info, sys);
+    preferences.end();
+
+    /*preferences.begin("gainOffset", true);
+    if (preferences.isKey("OFFSETVO00") == 0)
+    {
+        preferences.end();
+        ioOffsetGains iogainoffset;
+        iogainoffset.setGain(1);
+        iogainoffset.setOffset(0);
+        FOR4(i)
+        {
+            setGainOffset(&iogainoffset, "VO",0,i);
+        }
+        FOR4(j)
+        {
+            setGainOffset(&iogainoffset, "VO", 1, j);
+        }
+    }
+    preferences.end();*/
 }
 
-void ConfigSaver::setGainOffset(ioOffsetGains *data, char *name)
+void ConfigSaver::setGainOffset(ioOffsetGains *data, char *name, uint8_t slot, uint8_t ch)
 {
-    preferences.begin(name, false);
-    preferences.putFloat("OFFSET", data->getOffset());
+    preferences.begin("gainOffset", false);
+    preferences.putFloat(joinName("OFFSET", name, slot, ch), data->getOffset());
     preferences.putFloat("GAIN", data->getGain());
     preferences.end();
 }
@@ -156,4 +203,16 @@ void ConfigSaver::getHardware(char *item, char *value)
     preferences.begin("hardware", true);
     CPY(value, item);
     preferences.end();
+}
+
+char *ConfigSaver::joinName(char *base, uint8_t slot, uint8_t channel)
+{
+    sprintf(temp, "%s%d%d", base, slot, channel);
+    return temp;
+}
+
+char *ConfigSaver::joinName(char *base, char *secondbase, uint8_t slot, uint8_t channel)
+{
+    sprintf(temp, "%s%s%d%d", base, secondbase, slot, channel);
+    return temp;
 }

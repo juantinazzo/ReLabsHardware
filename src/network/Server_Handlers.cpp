@@ -149,3 +149,87 @@ DEF_HANDLER(handleStatus)
     res.print(status);
     res.status(200);
 }
+
+DEF_HANDLER(handleExp)
+{
+    String temp;
+    char argNameC[20], valueC[10];
+    String message = "{\"data\":[\n";
+    while (req.left())
+    {
+        if (req.form(argNameC, 20, valueC, 10))
+        {
+            String argName = String(argNameC);
+            String value = String(valueC);
+            uint16_t val = value.toInt();
+            uint8_t cn = (char)argName.substring(7).toInt();
+            if (argName.substring(0, 7) == "EXPREAD")
+            {
+                temp = String(sM.EXP[cn].readInputs());
+                message += "\t{\"values\":" + temp + " }";
+                message += ",\n";
+            }
+            if (argName.substring(0, 7) == "EXPWRTE")
+            {
+                sM.EXP[cn].setOutputs(val);
+                message += "\t{\"status\":\"ok\"}";
+                message += ",\n";
+            }
+            if (argName.substring(0, 7) == "EXPCONF")
+            {
+                sM.EXP[cn].configure(val);
+                message += "\t{\"status\":\"ok\"}";
+                message += ",\n";
+            }
+        }
+        else
+        {
+            return res.sendStatus(400);
+        }
+    }
+    message = message.substring(0, message.length() - 2);
+    message += "\n]}";
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print(message);
+    res.status(200);
+}
+
+DEF_HANDLER(handleWifi)
+{
+    String temp;
+    char argNameC[40], valueC[40];
+    String ssid, password;
+    String message = "{\"data\":[\n";
+    while (req.left())
+    {
+        if (req.form(argNameC, 40, valueC,40))
+        {
+            String argName = String(argNameC);
+            String value = String(valueC);
+            if (argName == "SSID")
+            {
+                ssid = value;
+                message += "\t{\"status\":\"ok\"}";
+                message += ",\n";
+            }
+            if (argName == "PWD")
+            {
+                password = value;
+                message += "\t{\"status\":\"ok\"}";
+                message += ",\n";
+            }
+        }
+        else
+        {
+            return res.sendStatus(400);
+        }
+    }
+    CS.setWiFi((char *)ssid.c_str(), (char *)password.c_str());
+    message = message.substring(0, message.length() - 2);
+    message += "\n]}";
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print(message);
+    res.status(200);
+}

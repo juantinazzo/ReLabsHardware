@@ -7,6 +7,7 @@
 
 static char sys[] = "EthModule";
 extern ConfigSaver CS;
+extern bool ethOk;
 /*
     Si da error de compilacion la parte de red cambiar en
     .platformio\packages\framework-arduinoespressif32\cores\esp32\Server.h
@@ -59,6 +60,7 @@ void EthernetModule::connect()
         if (Ethernet.hardwareStatus() == EthernetNoHardware)
         {
             LOG("No Ethernet module detected", Error, sys);
+            ethOk = false;
         }
         else if (Ethernet.linkStatus() == LinkOFF)
         {

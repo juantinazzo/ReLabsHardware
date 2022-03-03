@@ -8,7 +8,7 @@ class ConfigSaver
 {
 public:
     ConfigSaver();
-    void setGainOffset(ioOffsetGains *data, char *name);
+    void setGainOffset(ioOffsetGains *data, char *name, uint8_t slot, uint8_t ch);
     void setWiFi(char *accessPoint, char *password);
     void setWiFi(char *accessPoint, char *password, char *ip);
     void setEth(char *ip);
@@ -23,8 +23,12 @@ public:
     void getOTA(char *username, char *password);
     void getHardware(char *item, char *value);
     void begin();
+    void destroyEverthing();
 
 private:
+    char *
+    joinName(char *base, uint8_t slot, uint8_t channel);
+    char *joinName(char *base, char *secondbase, uint8_t slot, uint8_t channel);
 };
 
 #endif

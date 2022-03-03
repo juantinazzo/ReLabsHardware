@@ -13,5 +13,7 @@ DEF_HANDLER(handleAnalogOutputs);
 DEF_HANDLER(handleConfigGains);
 DEF_HANDLER(handleReadGains);
 DEF_HANDLER(handleStatus);
+DEF_HANDLER(handleExp);
+DEF_HANDLER(handleWifi);
 
 #endif

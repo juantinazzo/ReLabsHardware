@@ -5,6 +5,7 @@
 
 Expander_Card::Expander_Card()
 {
+    Wire.begin(SDA, SCL);
 }
 
 void Expander_Card::setNumber(uint8_t number)
@@ -28,24 +29,29 @@ void Expander_Card::start()
 
 bool Expander_Card::isRunning()
 {
+    Wire.setClock(50000);
+    Wire.begin();
     Wire.beginTransmission(addr);
-    is_running = (Wire.endTransmission() == 0);
+    is_running = (Wire.endTransmission() == 0) ? true : false;
     return is_running;
 }
 
 void Expander_Card::configure(uint16_t pinMode)
 {
+    Wire.setClock(50000);
     Wire.beginTransmission(addr);
-    Wire.write(0x06);
+    Wire.write(MCP23016_IODIR0);
     Wire.write(0xFF & pinMode);
     Wire.write(0xFF & (pinMode >> 8));
     Wire.endTransmission();
+    LOG("Configured", Info, sys);
 }
 
 void Expander_Card::setOutputs(uint16_t values)
 {
+    Wire.setClock(50000);
     Wire.beginTransmission(addr);
-    Wire.write(0x00);
+    Wire.write(MCP23016_GPIO0);
     Wire.write(values & 0xFF);
     Wire.write(values >> 8);
     Wire.endTransmission();
@@ -64,8 +70,9 @@ uint16_t Expander_Card::readInputs()
 {
     uint16_t bothPorts = 0;
     uint8_t port0;
+    Wire.setClock(50000);
     Wire.beginTransmission(addr);
-    Wire.write(0x00);
+    Wire.write(MCP23016_GPIO0);
     Wire.endTransmission();
     Wire.requestFrom(addr, 2);
     port0 = Wire.read();

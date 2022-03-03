@@ -3,7 +3,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-src/Passwords.h
+src/network/Passwords.h
 src/workspace.code-workspace
 notas.txt
 .VSCodeCounter

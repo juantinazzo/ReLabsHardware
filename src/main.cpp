@@ -38,6 +38,8 @@ systemManager sM;
 ConfigSaver CS;
 EthernetModule EM;
 
+bool ethOk = true;
+unsigned long timePassed = 0;
 bool expanderStatus[8];
 
 void setGetsPosts()
@@ -47,7 +49,9 @@ void setGetsPosts()
     app.post("/configGains/", &handleConfigGains);
     app.get("/readGains/", &handleReadGains);
     app.get("/status/", &handleStatus);
+    app.post("/digitalIO/", &handleExp);
     app.post("/analogOutputs/", &handleAnalogOutputs);
+    app.post("/wificredentials/", &handleWifi);
 }
 
 void setup()
@@ -56,7 +60,7 @@ void setup()
     delay(50);
     Logger::SetPriority(Info);
     CS.begin();
-
+    // CS.destroyEverthing();
 #ifdef USE_WIFI
     char ssid[30], password[30];
     CS.getWiFi(ssid, password);
@@ -68,11 +72,10 @@ void setup()
         delay(500);
         LOG_NOTAG(".", Info, sys);
     }
-    ArduinoOTA.setHostname("ReLabsModule");
-    ArduinoOTA.begin();
+    // ArduinoOTA.setHostname("ReLabsModule");
+    // ArduinoOTA.begin();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
-    return true;
 #endif
 
     setGetsPosts();
@@ -91,9 +94,9 @@ void setup()
     sM.setRails(true);
     sM.startVI(0);
     sM.startVO(0);
-    sM.startVO(4);
+    // sM.startVO(4);
     sM.startIO(0);
-    sM.startSERVO(SPARE_IO0);
+    //  sM.startSERVO(SPARE_IO0);
     sM.startEXP(0);
 }
 
@@ -102,18 +105,21 @@ void loop()
 
 #ifdef USE_WIFI
     ArduinoOTA.handle();
-    server.handleClient();
     WiFiClient client = server.available();
 #endif
-    EthernetClient ethernetClient = ethernetServer.available();
-
-    if (ethernetClient.connected())
+    if (ethOk)
     {
-        app.process(&ethernetClient);
-        delay(5);
-        ethernetClient.stop();
+        EthernetClient ethernetClient = ethernetServer.available();
+
+        if (ethernetClient.connected())
+        {
+            app.process(&ethernetClient);
+            delay(5);
+            ethernetClient.stop();
+        }
+        ArduinoOTA.poll();
     }
-    ArduinoOTA.poll();
+
 #ifdef USE_WIFI
     if (client.connected())
     {
@@ -129,4 +135,10 @@ void loop()
         Serial.write(SerialBT.read());
     }
 #endif
+
+    if (timePassed + 500 < millis())
+    {
+        // Do domething
+        timePassed = millis();
+    }
 }
