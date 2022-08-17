@@ -9,7 +9,13 @@ static char sys[] = "systemManager";
 systemManager::systemManager()
 {
 }
-
+/**
+ * @brief Iniciar salida de tensión
+ *
+ * @param SLOT
+ * @return true
+ * @return false
+ */
 bool systemManager::startVO(uint8_t SLOT)
 {
     if (VO_index > 1)
@@ -20,7 +26,13 @@ bool systemManager::startVO(uint8_t SLOT)
         VO_index++;
     return true;
 };
-
+/**
+ * @brief Iniciar salida de corriente
+ *
+ * @param SLOT
+ * @return true
+ * @return false
+ */
 bool systemManager::startIO(uint8_t SLOT)
 {
     if (IO_index > 5)
@@ -33,7 +45,13 @@ bool systemManager::startIO(uint8_t SLOT)
         return false;
     return true;
 };
-
+/**
+ * @brief Iniciar Servo
+ *
+ * @param output_pin
+ * @return true
+ * @return false
+ */
 bool systemManager::startSERVO(uint8_t output_pin)
 {
     if (SERVO_index > 2)
@@ -46,7 +64,13 @@ bool systemManager::startSERVO(uint8_t output_pin)
         return false;
     return true;
 };
-
+/**
+ * @brief Iniciar entrada de tensión
+ *
+ * @param addr
+ * @return true
+ * @return false
+ */
 bool systemManager::startVI(uint8_t addr)
 {
     if (VI_index > 1)
@@ -57,6 +81,13 @@ bool systemManager::startVI(uint8_t addr)
         VI_index++;
     return true;
 }
+/**
+ * @brief Iniciar chip Expansor
+ *
+ * @param number índice del chip
+ * @return true
+ * @return false
+ */
 bool systemManager::startEXP(uint8_t number)
 {
     if (EXP_index > 7)
@@ -70,11 +101,20 @@ bool systemManager::startEXP(uint8_t number)
     return true;
 }
 
+/**
+ * @brief Iniciar alimentación de SLOTS
+ *
+ */
 void systemManager::startRails()
 {
     pinMode(POWER_RAILS, OUTPUT);
     digitalWrite(POWER_RAILS, 0);
 }
+/**
+ * @brief Encender alimentación de SLOTS
+ *
+ * @param status
+ */
 void systemManager::setRails(bool status)
 {
     digitalWrite(POWER_RAILS, status);

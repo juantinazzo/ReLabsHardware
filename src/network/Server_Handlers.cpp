@@ -11,6 +11,7 @@ extern ConfigSaver CS;
 
 DynamicJsonDocument doc(256);
 
+
 DEF_HANDLER(indexCmd)
 {
 
@@ -31,6 +32,46 @@ DEF_HANDLER(indexCmd)
     char pwd[20], user[20];
     CS.getOTA(user, pwd);
     res.printf("User: %s\n Password: %s", user, pwd);
+}
+
+DEF_HANDLER(handlePendulum)
+{
+
+    String temp;
+    char argNameC[10], valueC[2];
+    String message = "{\"data\":[\n";
+    while (req.left())
+    {
+        if (req.form(argNameC, 10, valueC, 10))
+        {
+            String argName = String(argNameC);
+            String value = String(valueC);
+            uint8_t val = value.toInt();
+            uint8_t addr = val < 4 ? 0 : (val < 8 ? 1 : 2);
+            if (argName == "ADCREAD")
+            {
+                sM.VI[addr].measureAndReturn(value.toInt(), &temp);
+                message += "\t{ " + temp + " }";
+                message += ",\n";
+            }
+            if (argName == "ADCRAW")
+            {
+                sM.VI[addr].measureAndReturnRAW(value.toInt(), &temp);
+                message += "\t{ " + temp + " }";
+                message += ",\n";
+            }
+        }
+        else
+        {
+            return res.sendStatus(400);
+        }
+    }
+    message = message.substring(0, message.length() - 2);
+    message += "\n]}";
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print(message);
+    res.status(200);
 }
 
 DEF_HANDLER(handleAnalogInputs)

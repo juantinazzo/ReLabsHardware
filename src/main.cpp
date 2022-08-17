@@ -92,11 +92,11 @@ void setup()
     ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
     sM.startRails();
     sM.setRails(true);
-    sM.startVI(0);
-    sM.startVO(0);
-    // sM.startVO(4);
-    sM.startIO(0);
-    //  sM.startSERVO(SPARE_IO0);
+    // sM.startVI(0);
+    // sM.startVO(0);
+    //  sM.startVO(4);
+    // sM.startIO(0);
+    // sM.startSERVO(SLOT5_CS0);
     sM.startEXP(0);
 }
 
