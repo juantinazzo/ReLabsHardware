@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include "Card.h"
-#include <MCP492X.h>
 #include "board.h"
 #include "utilities/ioOffsetGains.h"
 
