@@ -13,6 +13,16 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
+#include <ESP_FlexyStepper.h>
+
+// IO pin assignments
+const int MOTOR_STEP_PIN = 3;
+const int MOTOR_DIRECTION_PIN = 4;
+
+// create the stepper motor object
+ESP_FlexyStepper stepper;
+
+
 Adafruit_MPU6050 mpu;
 
 
@@ -168,6 +178,17 @@ void setGetsPosts()
     app.post("/analogOutputs/", &handleAnalogOutputs);
 }
 
+void test_motor_task(void *pvParam){
+  while(true){
+    stepper.moveRelativeInSteps(2000);
+    delay(1000);
+  // rotate backward 1 rotation, then wait 1 second
+    stepper.moveRelativeInSteps(-2000);
+    delay(1000);
+  }
+  vTaskDelete(NULL);
+}
+
 void setup()
 {
     randomSeed(micros());
@@ -215,6 +236,12 @@ void setup()
     sM.startEXP(0);
     initMPU();
     xTaskCreatePinnedToCore(mpuTask,"mpu",2048,NULL,3,NULL,1);
+
+  stepper.connectToPins(SLOT0_CS0, SLOT0_CS1);
+  stepper.setSpeedInStepsPerSecond(1000);
+  stepper.setAccelerationInStepsPerSecondPerSecond(100);
+
+  xTaskCreatePinnedToCore(test_motor_task,"test_motor_task", 4096,NULL,2,NULL,1);
 }
 
 void loop()
