@@ -86,10 +86,10 @@ DEF_HANDLER(handlePendulum2)
     String ret = "{\"data\":[";
     for (byte i = 0; i < 4; i++)
     {
-        ret += "{\""+dataTime(i)+"\":";
+        //ret += "{\""+dataTime(i)+"\":";
         for (byte j = 0; j < 6; j++)
         {
-            ret += ",\"" + String(j) + "\":" + String(V_I_OG[j][i].getGain());
+          //  ret += ",\"" + String(j) + "\":" + String(V_I_OG[j][i].getGain());
         }
         ret += i == 7 ? "}" : "},";
     }
