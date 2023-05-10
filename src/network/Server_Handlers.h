@@ -19,5 +19,6 @@ DEF_HANDLER(handleWifi);
 
 /*APP SPECIFIC HANDLERS*/
 DEF_HANDLER(handlePendulum);
+DEF_HANDLER(handlePendulum2);
 
 #endif

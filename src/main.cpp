@@ -52,6 +52,8 @@ void setGetsPosts()
     app.post("/digitalIO/", &handleExp);
     app.post("/analogOutputs/", &handleAnalogOutputs);
     app.post("/wificredentials/", &handleWifi);
+    app.post("/pendulo/", &handlePendulum);
+    app.get("/pendulo/", &handlePendulum2);
 }
 
 void setup()

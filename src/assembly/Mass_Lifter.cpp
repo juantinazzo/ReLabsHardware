@@ -41,7 +41,8 @@ bool Mass_Lifter::isMoving()
 
 bool Mass_Lifter::home()
 {
-    stepper_l.setCurrentPositionAsHomeAndStop();
+    stepper_l.startJogging(homingDir);
+    stepper_l.goToLimitAndSetAsHome();
     return true;
 }
 

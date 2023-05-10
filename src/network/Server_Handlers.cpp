@@ -39,38 +39,65 @@ DEF_HANDLER(handlePendulum)
 
     String temp;
     char argNameC[10], valueC[2];
-    String message = "{\"data\":[\n";
     while (req.left())
     {
         if (req.form(argNameC, 10, valueC, 10))
         {
             String argName = String(argNameC);
             String value = String(valueC);
-            uint8_t val = value.toInt();
-            uint8_t addr = val < 4 ? 0 : (val < 8 ? 1 : 2);
-            if (argName == "ADCREAD")
-            {
-                sM.VI[addr].measureAndReturn(value.toInt(), &temp);
-                message += "\t{ " + temp + " }";
-                message += ",\n";
-            }
-            if (argName == "ADCRAW")
-            {
-                sM.VI[addr].measureAndReturnRAW(value.toInt(), &temp);
-                message += "\t{ " + temp + " }";
-                message += ",\n";
+            deserializeJson(doc, argName);
+
+            if(argName=="init"){
+                float angle=doc["Angle"];
+                float lenght=doc["Lenght"];
+                int massIndex=(int)doc["MassIndex"];
             }
         }
-        else
-        {
-            return res.sendStatus(400);
-        }
+
     }
-    message = message.substring(0, message.length() - 2);
-    message += "\n]}";
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
-    res.print(message);
+    res.print("{\"status\":\"ok\"}");
+    res.status(200);
+}
+
+DEF_HANDLER(handlePendulum2)
+{
+
+    String temp;
+    char argNameC[10], valueC[2];
+    while (req.left())
+    {
+        if (req.form(argNameC, 10, valueC, 10))
+        {
+            String argName = String(argNameC);
+            String value = String(valueC);
+            deserializeJson(doc, argName);
+
+            if(argName=="init"){
+                float angle=doc["Angle"];
+                float lenght=doc["Lenght"];
+                int massIndex=(int)doc["MassIndex"];
+            }
+        }
+
+    }
+
+    String ret = "{\"data\":[";
+    for (byte i = 0; i < 4; i++)
+    {
+        ret += "{\""+dataTime(i)+"\":";
+        for (byte j = 0; j < 6; j++)
+        {
+            ret += ",\"" + String(j) + "\":" + String(V_I_OG[j][i].getGain());
+        }
+        ret += i == 7 ? "}" : "},";
+    }
+    ret += "]}";
+
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print("{\"status\":\"ok\"}");
     res.status(200);
 }
 
@@ -145,6 +172,7 @@ DEF_HANDLER(handleAnalogOutputs)
     res.print("{\"status\":\"ok\"}");
     res.status(200);
 }
+
 
 DEF_HANDLER(handleConfigGains)
 {
