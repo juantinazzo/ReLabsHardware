@@ -33,6 +33,64 @@ DEF_HANDLER(indexCmd)
     res.printf("User: %s\n Password: %s", user, pwd);
 }
 
+DEF_HANDLER(handlePendulum)
+{
+
+    String temp;
+    char argNameC[10], valueC[2];
+    while (req.left())
+    {
+        if (req.form(argNameC, 10, valueC, 10))
+        {
+            String argName = String(argNameC);
+            String value = String(valueC);
+            deserializeJson(doc, argName);
+
+            if(argName=="init"){
+                float angle=doc["Angle"];
+                float lenght=doc["Lenght"];
+                int massIndex=(int)doc["MassIndex"];
+            }
+        }
+
+    }
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print("{\"status\":\"ok\"}");
+    res.status(200);
+}
+
+
+extern unsigned long _time[2000][2];
+extern float _angle[2000][2];
+extern int index_use_array;
+extern int index_array_pos;
+ int index_use_array_cpy;
+ int index_array_pos_cpy;
+
+DEF_HANDLER(handlePendulum2)
+{
+    index_use_array_cpy=index_use_array;
+    index_array_pos_cpy=index_array_pos;
+    index_array_pos=0;
+    index_use_array=index_use_array==0?1:0;
+    String ret = "{\"data\":[";
+    for (int i = 0; i < index_array_pos_cpy; i++)
+    {
+        ret += "{\"t\":";
+        ret += String(_time[i][index_use_array_cpy]);
+        ret += ",\"a\":";
+        ret += String(_angle[i][index_use_array_cpy]);
+        if(i!=index_array_pos_cpy-1) ret+="},";
+    }
+    ret += "]}";
+
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print(ret);
+    res.status(200);
+}
+
 DEF_HANDLER(handleAnalogInputs)
 {
 

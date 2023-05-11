@@ -14,4 +14,9 @@ DEF_HANDLER(handleConfigGains);
 DEF_HANDLER(handleReadGains);
 DEF_HANDLER(handleStatus);
 
+
+/*APP SPECIFIC HANDLERS*/
+DEF_HANDLER(handlePendulum);
+DEF_HANDLER(handlePendulum2);
+
 #endif

@@ -27,5 +27,5 @@
 
 #define led 36 // 2
 
-#define USE_BT
-//#define USE_WIFI
+//#define USE_BT
+#define USE_WIFI

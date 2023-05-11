@@ -12,7 +12,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-
+#include "network/Passwords.h"
 #include <ESP_FlexyStepper.h>
 
 // IO pin assignments
@@ -24,6 +24,11 @@ ESP_FlexyStepper stepper;
 
 
 Adafruit_MPU6050 mpu;
+
+unsigned long _time[2000][2]={};
+float _angle[2000][2]={};
+int index_use_array = 0;
+int index_array_pos=0;
 
 
 #ifdef USE_WIFI
@@ -50,7 +55,7 @@ WiFiServer server(80);
 BluetoothSerial SerialBT;
 #endif
 
-EthernetServer ethernetServer(80);
+EthernetServer ethernetServer(8080);
 IPAddress currentIP;
 Application app;
 systemManager sM;
@@ -133,12 +138,24 @@ void initMPU(){
 
 }
 
+#define A_R 16384.0 // 32768/2
+#define G_R 131.0 // 32768/250
+ 
+//Conversion de radianes a grados 180/PI
+#define RAD_A_DEG = 57.295779
+float Acc[2];
+float Gy[3];
+float Angle[3];
+long tiempo_prev;
+float dt;
+String valores;
+
 void printMPU(){
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
   /* Print out the values */
-  Serial.print("Acceleration X: ");
+  /*Serial.print("Acceleration X: ");
   Serial.print(a.acceleration.x);
   Serial.print(", Y: ");
   Serial.print(a.acceleration.y);
@@ -152,13 +169,40 @@ void printMPU(){
   Serial.print(g.gyro.y);
   Serial.print(", Z: ");
   Serial.print(g.gyro.z);
-  Serial.print(" rad/s\t");
+  Serial.print(" rad/s\t");*/
 
-  Serial.print("Temperature: ");
+
+
+  Acc[1] = atan(-1*(a.acceleration.x/A_R)/sqrt(pow((a.acceleration.y/A_R),2) + pow((a.acceleration.z/A_R),2)))*RAD_TO_DEG;
+  Acc[0] = atan((a.acceleration.y/A_R)/sqrt(pow((a.acceleration.x/A_R),2) + pow((a.acceleration.z/A_R),2)))*RAD_TO_DEG;
+  Gy[0] = g.gyro.x/G_R;
+  Gy[1] = g.gyro.y/G_R;
+  Gy[2] = g.gyro.z/G_R;
+
+   dt = (millis() - tiempo_prev) / 1000.0;
+   tiempo_prev = millis();
+ 
+   //Aplicar el Filtro Complementario
+   Angle[0] = 0.98 *(Angle[0]+Gy[0]*dt) + 0.02*Acc[0];
+   Angle[1] = 0.98 *(Angle[1]+Gy[1]*dt) + 0.02*Acc[1];
+
+   //Integración respecto del tiempo paras calcular el YAW
+   Angle[2] = Angle[2]+Gy[2]*dt;
+
+   valores = String(Angle[0]) + "," + String(Angle[1]) + "," + String(Angle[2]);
+   /**Serial.print(valores);
+  Serial.print("  Temperature: ");
   Serial.print(temp.temperature);
-  Serial.println(" degC");
-
+  Serial.println(" degC");*/
+  index_array_pos++;
+  if(index_array_pos>=2000){
+    index_array_pos=0;
+    index_use_array=index_use_array==0?1:0;
+  }
+  _time[index_array_pos][index_use_array]=millis();
+  _angle[index_array_pos][index_use_array]=Angle[0];
 }
+
 
 void mpuTask(void *){
     while(true){
@@ -176,6 +220,8 @@ void setGetsPosts()
     app.get("/readGains/", &handleReadGains);
     app.get("/status/", &handleStatus);
     app.post("/analogOutputs/", &handleAnalogOutputs);
+    app.post("/pendulo/", &handlePendulum);
+    app.get("/pendulo/", &handlePendulum2);
 }
 
 void test_motor_task(void *pvParam){
@@ -197,8 +243,8 @@ void setup()
     CS.begin();
 
 #ifdef USE_WIFI
-    char ssid[30], password[30];
-    CS.getWiFi(ssid, password);
+   // char ssid[30], password[30];
+    //CS.getWiFi(ssid, password);
     LOG("Connecting to %s ", Info, sys, ssid);
     WiFi.begin(ssid, password);
 
@@ -207,11 +253,10 @@ void setup()
         delay(500);
         LOG_NOTAG(".", Info, sys);
     }
-    ArduinoOTA.setHostname("ReLabsModule");
-    ArduinoOTA.begin();
+    //ArduinoOTA.setHostname("ReLabsModule");
+    //ArduinoOTA.begin();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
-    return true;
 #endif
 
     setGetsPosts();
@@ -225,7 +270,7 @@ void setup()
     char user[30], uploadpassword[30];
     CS.getOTA(user, uploadpassword);
     EM.connect();
-    ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
+    //ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
     sM.startRails();
     sM.setRails(true);
     //sM.startVI(0);
@@ -248,8 +293,8 @@ void loop()
 {
 
 #ifdef USE_WIFI
-    ArduinoOTA.handle();
-    server.handleClient();
+    //ArduinoOTA.handle();
+    //server.handleClient();
     WiFiClient client = server.available();
 #endif
     EthernetClient ethernetClient = ethernetServer.available();
