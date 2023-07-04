@@ -13,14 +13,8 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include "network/Passwords.h"
-#include <ESP_FlexyStepper.h>
+#include "state_machines.h"
 
-// IO pin assignments
-const int MOTOR_STEP_PIN = 3;
-const int MOTOR_DIRECTION_PIN = 4;
-
-// create the stepper motor object
-ESP_FlexyStepper stepper;
 
 
 Adafruit_MPU6050 mpu;
@@ -150,28 +144,9 @@ long tiempo_prev;
 float dt;
 String valores;
 
-void printMPU(){
+void updateMPU(){
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
-
-  /* Print out the values */
-  /*Serial.print("Acceleration X: ");
-  Serial.print(a.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a.acceleration.z);
-  Serial.print(" m/s^2\t");
-
-  Serial.print("Rotation X: ");
-  Serial.print(g.gyro.x);
-  Serial.print(", Y: ");
-  Serial.print(g.gyro.y);
-  Serial.print(", Z: ");
-  Serial.print(g.gyro.z);
-  Serial.print(" rad/s\t");*/
-
-
 
   Acc[1] = atan(-1*(a.acceleration.x/A_R)/sqrt(pow((a.acceleration.y/A_R),2) + pow((a.acceleration.z/A_R),2)))*RAD_TO_DEG;
   Acc[0] = atan((a.acceleration.y/A_R)/sqrt(pow((a.acceleration.x/A_R),2) + pow((a.acceleration.z/A_R),2)))*RAD_TO_DEG;
@@ -206,7 +181,7 @@ void printMPU(){
 
 void mpuTask(void *){
     while(true){
-        printMPU();
+        updateMPU();
         delay(50);
     }
     vTaskDelete(NULL);
@@ -226,11 +201,7 @@ void setGetsPosts()
 
 void test_motor_task(void *pvParam){
   while(true){
-    stepper.moveRelativeInSteps(2000);
-    delay(1000);
-  // rotate backward 1 rotation, then wait 1 second
-    stepper.moveRelativeInSteps(-2000);
-    delay(1000);
+
   }
   vTaskDelete(NULL);
 }
@@ -277,16 +248,14 @@ void setup()
     //sM.startVO(0);
     //sM.startVO(4);
     sM.startIO(0);
-    sM.startSERVO(SPARE_IO0);
+    //sM.startSERVO(SPARE_IO0);
     sM.startEXP(0);
     initMPU();
     xTaskCreatePinnedToCore(mpuTask,"mpu",2048,NULL,3,NULL,1);
 
-  stepper.connectToPins(SLOT0_CS0, SLOT0_CS1);
-  stepper.setSpeedInStepsPerSecond(1000);
-  stepper.setAccelerationInStepsPerSecondPerSecond(100);
 
-  xTaskCreatePinnedToCore(test_motor_task,"test_motor_task", 4096,NULL,2,NULL,1);
+
+  xTaskCreatePinnedToCore(pendulo_task,"pendulo_task", 8192,NULL,2,NULL,1);
 }
 
 void loop()

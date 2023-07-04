@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include "systemManager.h"
 #include "utilities/ConfigSaver.h"
+#include "state_machines.h"
 
 extern systemManager sM;
 extern ConfigSaver CS;
@@ -38,6 +39,11 @@ DEF_HANDLER(handlePendulum)
 
     String temp;
     char argNameC[10], valueC[2];
+    float angle=0;
+    float lenght=0;
+    int massIndex=0;
+    float maxtime=0;
+
     while (req.left())
     {
         if (req.form(argNameC, 10, valueC, 10))
@@ -47,9 +53,10 @@ DEF_HANDLER(handlePendulum)
             deserializeJson(doc, argName);
 
             if(argName=="init"){
-                float angle=doc["Angle"];
-                float lenght=doc["Lenght"];
-                int massIndex=(int)doc["MassIndex"];
+                angle=doc["Angle"];
+                lenght=doc["Lenght"];
+                maxtime=doc["Time"];
+                massIndex=(int)doc["MassIndex"];
             }
         }
 
@@ -58,6 +65,8 @@ DEF_HANDLER(handlePendulum)
     res.set("Content-Type", "text/plain");
     res.print("{\"status\":\"ok\"}");
     res.status(200);
+
+    state_machines_trigger_start(massIndex,lenght,angle,maxtime);
 }
 
 

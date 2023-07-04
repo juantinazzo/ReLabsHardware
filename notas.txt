@@ -1,0 +1,10 @@
+La app debería incluir las siguientes configuraciones:
+-IP de ethernet
+-SSID y contraseña de WIFI (si es que está habilitado)
+-Nombre del equipo
+-Usuario y contraseña del OTA
+
+
+Rev 2 de MB:
+-Sensor de temperatura
+-Conector de fan
