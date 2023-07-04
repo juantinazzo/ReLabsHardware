@@ -36,9 +36,7 @@ DEF_HANDLER(indexCmd)
 
 DEF_HANDLER(handlePendulum)
 {
-
-    String temp;
-    char argNameC[10], valueC[2];
+    char argNameC[10], valueC[120];
     float angle=0;
     float lenght=0;
     int massIndex=0;
@@ -46,11 +44,11 @@ DEF_HANDLER(handlePendulum)
 
     while (req.left())
     {
-        if (req.form(argNameC, 10, valueC, 10))
+        if (req.form(argNameC, 10, valueC, 120))
         {
             String argName = String(argNameC);
             String value = String(valueC);
-            deserializeJson(doc, argName);
+            deserializeJson(doc, value);
 
             if(argName=="init"){
                 angle=doc["Angle"];

@@ -59,15 +59,13 @@ EthernetModule EM;
 
 bool expanderStatus[8];
 
-void initMPU(){
-     Serial.println("Adafruit MPU6050 test!");
+bool initMPU(){
+     Serial.println("\nAdafruit MPU6050 test!");
 
   // Try to initialize!
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
-    }
+    return false;
   }
   Serial.println("MPU6050 Found!");
 
@@ -129,7 +127,7 @@ void initMPU(){
     Serial.println("5 Hz");
     break;
   }
-
+  return true;
 }
 
 #define A_R 16384.0 // 32768/2
@@ -211,7 +209,7 @@ void setup()
     randomSeed(micros());
     delay(50);
     Logger::SetPriority(Info);
-    CS.begin();
+    //CS.begin();
 
 #ifdef USE_WIFI
    // char ssid[30], password[30];
@@ -239,23 +237,21 @@ void setup()
     LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
 #endif
     char user[30], uploadpassword[30];
-    CS.getOTA(user, uploadpassword);
-    EM.connect();
+    //CS.getOTA(user, uploadpassword);
+    //EM.connect();
     //ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
     sM.startRails();
     sM.setRails(true);
     //sM.startVI(0);
     //sM.startVO(0);
     //sM.startVO(4);
-    sM.startIO(0);
+    //sM.startIO(0);
     //sM.startSERVO(SPARE_IO0);
-    sM.startEXP(0);
-    initMPU();
+    //sM.startEXP(0);
+    if(initMPU()) xTaskCreatePinnedToCore(pendulo_task,"pendulo_task", 8192,NULL,2,NULL,1);
+        
     xTaskCreatePinnedToCore(mpuTask,"mpu",2048,NULL,3,NULL,1);
-
-
-
-  xTaskCreatePinnedToCore(pendulo_task,"pendulo_task", 8192,NULL,2,NULL,1);
+ 
 }
 
 void loop()
