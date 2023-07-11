@@ -18,5 +18,6 @@ DEF_HANDLER(handleStatus);
 /*APP SPECIFIC HANDLERS*/
 DEF_HANDLER(handlePendulum);
 DEF_HANDLER(handlePendulum2);
+DEF_HANDLER(handlePendulum3);
 
 #endif

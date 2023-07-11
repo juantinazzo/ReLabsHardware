@@ -22,5 +22,7 @@ typedef enum{
 void state_machines_trigger_start(int _mass_index, float _altura,float _angulo,float _tiempo_maximo);
 bool state_machines_has_ended();
 void pendulo_task(void*);
+bool state_machines_has_ended();
+bool state_machines_pendulum_running();
 
 #endif

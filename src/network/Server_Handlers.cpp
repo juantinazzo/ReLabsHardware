@@ -48,17 +48,27 @@ DEF_HANDLER(handlePendulum)
         {
             String argName = String(argNameC);
             String value = String(valueC);
-            deserializeJson(doc, value);
+            /*deserializeJson(doc, value);
 
             if(argName=="init"){
                 angle=doc["Angle"];
                 lenght=doc["Lenght"];
                 maxtime=doc["Time"];
                 massIndex=(int)doc["MassIndex"];
-            }
+            }*/
+            if(argName=="Angle") angle=value.toFloat();
+            if(argName=="Lenght") lenght=value.toFloat();
+            if(argName=="Time") maxtime=value.toFloat();
+            if(argName=="MassIndex") massIndex=value.toFloat();
         }
-
+ //res.write(req.read());
     }
+
+    Serial.println(angle);
+    Serial.println(lenght);
+    Serial.println(massIndex);
+    Serial.println(maxtime);
+    
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
     res.print("{\"status\":\"ok\"}");
@@ -82,16 +92,33 @@ DEF_HANDLER(handlePendulum2)
     index_array_pos=0;
     index_use_array=index_use_array==0?1:0;
     String ret = "{\"data\":[";
-    for (int i = 0; i < index_array_pos_cpy; i++)
+    for (int i = 1; i < index_array_pos_cpy; i++)
     {
-        ret += "{\"t\":";
-        ret += String(_time[i][index_use_array_cpy]);
-        ret += ",\"a\":";
-        ret += String(_angle[i][index_use_array_cpy]);
-        if(i!=index_array_pos_cpy-1) ret+="},";
+        if(state_machines_has_ended()) {
+            ret += "{\"t\":-1,\"a\":0}";
+            break;
+        } 
+        if(_time[i][index_use_array_cpy]!=0){
+            ret += "{\"t\":";
+            ret += String(_time[i][index_use_array_cpy]);
+            ret += ",\"a\":";
+            ret += String(_angle[i][index_use_array_cpy]);
+            if(i!=index_array_pos_cpy-1) ret+="},";
+            else ret+="}";
+        }
     }
     ret += "]}";
 
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Content-Type", "text/plain");
+    res.print(ret);
+    res.status(200);
+}
+
+DEF_HANDLER(handlePendulum3){
+    String ret="";
+    if (state_machines_pendulum_running()) ret+="true";
+    else ret+="false";
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Content-Type", "text/plain");
     res.print(ret);

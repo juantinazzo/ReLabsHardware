@@ -19,7 +19,7 @@
 
 Adafruit_MPU6050 mpu;
 
-unsigned long _time[2000][2]={};
+unsigned long _time[2000][2]={}, _start_time=0;
 float _angle[2000][2]={};
 int index_use_array = 0;
 int index_array_pos=0;
@@ -156,8 +156,8 @@ void updateMPU(){
    tiempo_prev = millis();
  
    //Aplicar el Filtro Complementario
-   Angle[0] = 0.98 *(Angle[0]+Gy[0]*dt) + 0.02*Acc[0];
-   Angle[1] = 0.98 *(Angle[1]+Gy[1]*dt) + 0.02*Acc[1];
+   Angle[0] = 0.95 *(Angle[0]+Gy[0]*dt) + 0.05*Acc[0];
+   Angle[1] = 0.95 *(Angle[1]+Gy[1]*dt) + 0.05*Acc[1];
 
    //Integración respecto del tiempo paras calcular el YAW
    Angle[2] = Angle[2]+Gy[2]*dt;
@@ -172,7 +172,7 @@ void updateMPU(){
     index_array_pos=0;
     index_use_array=index_use_array==0?1:0;
   }
-  _time[index_array_pos][index_use_array]=millis();
+  _time[index_array_pos][index_use_array]=millis()-_start_time;
   _angle[index_array_pos][index_use_array]=Angle[0];
 }
 
@@ -180,7 +180,7 @@ void updateMPU(){
 void mpuTask(void *){
     while(true){
         updateMPU();
-        delay(50);
+        delay(5);
     }
     vTaskDelete(NULL);
 }
@@ -195,6 +195,7 @@ void setGetsPosts()
     app.post("/analogOutputs/", &handleAnalogOutputs);
     app.post("/pendulo/", &handlePendulum);
     app.get("/pendulo/", &handlePendulum2);
+    app.get("/pendulolisto/", &handlePendulum3);
 }
 
 void test_motor_task(void *pvParam){

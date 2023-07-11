@@ -9,6 +9,11 @@ static bool should_start=false;
 static int mass_index=0;
 static float altura=0, angulo=0, tiempo_maximo=0;
 
+extern unsigned long _start_time;
+
+static int estado=1;
+
+
 #define ALTURA_CERO_STEPS 5000
 #define ALTURA_HOLD 2500
 #define ALTURA_MAX_STEPS
@@ -35,19 +40,27 @@ void state_machines_trigger_start(int _mass_index, float _altura,float _angulo,f
    mass_index=_mass_index;
 }
 
+bool state_machines_has_ended(){
+ return (estado==PENDULO_STOPPED);
+}
+
+bool state_machines_pendulum_running(){
+ return (estado==PENDULO_WAITING_TEST);
+}
 
 void pendulo_task(void*){
-    static int estado=1;
+    
     static unsigned long cheap_timer=0;
 
+
     height_stepper.connectToPins(SLOT0_CS0, SLOT0_CS1);
-    height_stepper.setSpeedInStepsPerSecond(300);
-    height_stepper.setAccelerationInStepsPerSecondPerSecond(100);
+    height_stepper.setSpeedInStepsPerSecond(1000);
+    height_stepper.setAccelerationInStepsPerSecondPerSecond(500);
     height_stepper.startAsService(1);
 
     angle_stepper.connectToPins(SLOT1_CS0, SLOT1_CS1);
-    angle_stepper.setSpeedInStepsPerSecond(50);
-    angle_stepper.setAccelerationInStepsPerSecondPerSecond(100);
+    angle_stepper.setSpeedInStepsPerSecond(500);
+    angle_stepper.setAccelerationInStepsPerSecondPerSecond(500);
     angle_stepper.startAsService(1);
 
 
@@ -62,6 +75,7 @@ void pendulo_task(void*){
             if(should_start){
                 should_start=false;
                 estado=PENDULO_ROTATING_DISC;
+                
                 Serial.println("MEF: a PENDULO_ROTATING_DISC");
             }
             break;
@@ -84,7 +98,7 @@ void pendulo_task(void*){
                 if(millis()>cheap_timer+1000){
                     //digitalWrite(RELAY_PIN, LOW);
                     estado=PENDULO_RISING_CRANE_INIT;
-                    height_stepper.setTargetPositionInSteps(-altura*MM_TO_STEPS);
+                    height_stepper.setTargetPositionInSteps(altura*MM_TO_STEPS);
                     Serial.println("MEF: a PENDULO_RISING_CRANE_INIT");
                 }
             break;
@@ -118,11 +132,12 @@ void pendulo_task(void*){
                     estado=PENDULO_WAITING_TEST;
                     angle_stepper.setTargetPositionInSteps(0);
                     cheap_timer=millis();
+                    _start_time=millis();
                     Serial.println("MEF: a PENDULO_WAITING_TEST");
                 }
             break;
             case PENDULO_WAITING_TEST:
-                if(millis()>cheap_timer+tiempo_maximo && angle_stepper.getDistanceToTargetSigned() == 0){
+                if(millis()>cheap_timer+tiempo_maximo*1000){
                     servo.write(90);
                     estado=PENDULO_BRAKING;
                      cheap_timer=millis();
@@ -146,7 +161,7 @@ void pendulo_task(void*){
             break;
             case PENDULO_UNHOOK_CRANE:
                 if(millis()>cheap_timer+1000){
-                    height_stepper.setTargetPositionInSteps(-ALTURA_HOLD);
+                    height_stepper.setTargetPositionInSteps(ALTURA_HOLD);
                     estado=PENDULO_RISING_CRANE_END;
                     Serial.println("MEF: a PENDULO_RISING_CRANE_END");
                 }
