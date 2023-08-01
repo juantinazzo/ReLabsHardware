@@ -36,15 +36,14 @@ DEF_HANDLER(indexCmd)
 
 DEF_HANDLER(handlePendulum)
 {
-    char argNameC[10], valueC[120];
+    char argNameC[15], valueC[120];
     float angle=0;
     float lenght=0;
     int massIndex=0;
     float maxtime=0;
-
     while (req.left())
     {
-        if (req.form(argNameC, 10, valueC, 120))
+        if (req.form(argNameC, 15, valueC, 120))
         {
             String argName = String(argNameC);
             String value = String(valueC);
@@ -55,11 +54,12 @@ DEF_HANDLER(handlePendulum)
                 lenght=doc["Lenght"];
                 maxtime=doc["Time"];
                 massIndex=(int)doc["MassIndex"];
-            }*/
+            }//*/
+            Serial.println(argName + "  " + value);
             if(argName=="Angle") angle=value.toFloat();
             if(argName=="Lenght") lenght=value.toFloat();
             if(argName=="Time") maxtime=value.toFloat();
-            if(argName=="MassIndex") massIndex=value.toFloat();
+            if(argName=="MassIndex") massIndex=(int)value.toInt();
         }
  //res.write(req.read());
     }
@@ -98,7 +98,7 @@ DEF_HANDLER(handlePendulum2)
             ret += "{\"t\":-1,\"a\":0}";
             break;
         } 
-        if(_time[i][index_use_array_cpy]!=0){
+        if(_time[i][index_use_array_cpy]!=0 && state_machines_pendulum_running()){
             ret += "{\"t\":";
             ret += String(_time[i][index_use_array_cpy]);
             ret += ",\"a\":";

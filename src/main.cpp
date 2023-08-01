@@ -249,9 +249,9 @@ void setup()
     //sM.startIO(0);
     //sM.startSERVO(SPARE_IO0);
     //sM.startEXP(0);
-    if(initMPU()) xTaskCreatePinnedToCore(pendulo_task,"pendulo_task", 8192,NULL,2,NULL,1);
-        
-    xTaskCreatePinnedToCore(mpuTask,"mpu",2048,NULL,3,NULL,1);
+    if(initMPU()) xTaskCreatePinnedToCore(mpuTask,"mpu",2048,NULL,3,NULL,1);
+        xTaskCreatePinnedToCore(pendulo_task,"pendulo_task", 8192,NULL,2,NULL,1);
+    
  
 }
 
@@ -268,7 +268,7 @@ void loop()
     if (ethernetClient.connected())
     {
         app.process(&ethernetClient);
-        delay(5);
+        delay(1);
         ethernetClient.stop();
     }
     ArduinoOTA.poll();
@@ -276,7 +276,7 @@ void loop()
     if (client.connected())
     {
         app.process(&client);
-        delay(5);
+        delay(1);
         client.stop();
     }
 #endif
