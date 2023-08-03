@@ -18,12 +18,15 @@ static int estado=1;
 #define ALTURA_HOLD 2500
 #define ALTURA_MAX_STEPS
 #define RELAY_PIN -1
-#define MM_TO_STEPS 10
-#define ANG_TO_STEPS 300
+#define MM_TO_STEPS 1
+#define ANG_TO_STEPS 1
 
 // IO pin assignments
 const int MOTOR_STEP_PIN = 3;
 const int MOTOR_DIRECTION_PIN = 4;
+
+extern int index_use_array;
+extern int index_array_pos;
 
 // create the stepper motor object
 ESP_FlexyStepper height_stepper, angle_stepper;
@@ -55,12 +58,12 @@ void pendulo_task(void*){
 
     height_stepper.connectToPins(SLOT0_CS0, SLOT0_CS1);
     height_stepper.setSpeedInStepsPerSecond(1000);
-    height_stepper.setAccelerationInStepsPerSecondPerSecond(500);
+    height_stepper.setAccelerationInStepsPerSecondPerSecond(5000);
     height_stepper.startAsService(1);
 
     angle_stepper.connectToPins(SLOT1_CS0, SLOT1_CS1);
-    angle_stepper.setSpeedInStepsPerSecond(500);
-    angle_stepper.setAccelerationInStepsPerSecondPerSecond(500);
+    angle_stepper.setSpeedInStepsPerSecond(1000);
+    angle_stepper.setAccelerationInStepsPerSecondPerSecond(5000);
     angle_stepper.startAsService(1);
 
 
@@ -133,6 +136,8 @@ void pendulo_task(void*){
                     angle_stepper.setTargetPositionInSteps(0);
                     cheap_timer=millis();
                     _start_time=millis();
+                    index_array_pos=0;
+                    index_use_array=index_use_array==0?1:0;
                     Serial.println("MEF: a PENDULO_WAITING_TEST");
                 }
             break;

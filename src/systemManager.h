@@ -6,7 +6,7 @@
 #include "cards/V_O_Card.h"
 #include "cards/I_O_Card.h"
 #include "cards/Servo_Card.h"
-#include "cards/Expander_Card.h"
+//#include "cards/Expander_Card.h"
 
 class systemManager
 {
@@ -24,7 +24,7 @@ public:
     V_O_Card VO[2];
     I_O_Card IO[6];
     Servo_Card SERVO[3];
-    Expander_Card EXP[8];
+    //Expander_Card EXP[8];
 
 private:
     uint8_t VO_index = 0;

@@ -59,7 +59,7 @@ bool systemManager::startVI(uint8_t addr)
 }
 bool systemManager::startEXP(uint8_t number)
 {
-    if (EXP_index > 7)
+   /* if (EXP_index > 7)
         return false;
     EXP[EXP_index].setNumber(number);
     EXP[EXP_index].start();
@@ -67,7 +67,7 @@ bool systemManager::startEXP(uint8_t number)
         EXP_index++;
     else
         return false;
-    return true;
+    return true;*/
 }
 
 void systemManager::startRails()
