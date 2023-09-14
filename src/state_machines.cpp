@@ -14,12 +14,12 @@ extern unsigned long _start_time;
 static int estado=1;
 
 
-#define ALTURA_CERO_STEPS 5000
-#define ALTURA_HOLD 2500
+#define ALTURA_CERO 75
+#define ALTURA_HOLD_ 25
 #define ALTURA_MAX_STEPS
 #define RELAY_PIN -1
-#define MM_TO_STEPS 1
-#define ANG_TO_STEPS 1
+#define MM_TO_STEPS -100
+#define ANG_TO_STEPS 530
 
 // IO pin assignments
 const int MOTOR_STEP_PIN = 3;
@@ -57,15 +57,18 @@ void pendulo_task(void*){
 
 
     height_stepper.connectToPins(SLOT0_CS0, SLOT0_CS1);
-    height_stepper.setSpeedInStepsPerSecond(1000);
-    height_stepper.setAccelerationInStepsPerSecondPerSecond(5000);
+
+
+    height_stepper.setSpeedInMillimetersPerSecond(20);
+    height_stepper.setAccelerationInMillimetersPerSecondPerSecond(1000);
+    height_stepper.setDecelerationInMillimetersPerSecondPerSecond(1000);
     height_stepper.startAsService(1);
 
     angle_stepper.connectToPins(SLOT1_CS0, SLOT1_CS1);
-    angle_stepper.setSpeedInStepsPerSecond(1000);
-    angle_stepper.setAccelerationInStepsPerSecondPerSecond(5000);
+    angle_stepper.setSpeedInMillimetersPerSecond(100);
+    angle_stepper.setAccelerationInMillimetersPerSecondPerSecond(1000);
+    angle_stepper.setDecelerationInMillimetersPerSecondPerSecond(1000);
     angle_stepper.startAsService(1);
-
 
     servo.setPeriodHertz(50);
     servo.attach(SPARE_IO0, 1000, 2000);
@@ -85,7 +88,7 @@ void pendulo_task(void*){
             case PENDULO_ROTATING_DISC:
                 if(rotate_to_mass(mass_index)){
                     estado=PENDULO_LOWERING_CRANE_INIT;
-                    height_stepper.setTargetPositionInSteps(ALTURA_CERO_STEPS);
+                    height_stepper.setTargetPositionInSteps(ALTURA_CERO*MM_TO_STEPS);
                     Serial.println("MEF: a PENDULO_LOWERING_CRANE_INIT");
                 }
             break;
@@ -151,7 +154,7 @@ void pendulo_task(void*){
             break;
             case PENDULO_BRAKING:
                 if(millis()>cheap_timer+1000){
-                    height_stepper.setTargetPositionInSteps(ALTURA_CERO_STEPS);
+                    height_stepper.setTargetPositionInSteps(ALTURA_CERO*MM_TO_STEPS);
                     estado=PENDULO_LOWERING_CRANE_END;
                     Serial.println("MEF: a PENDULO_LOWERING_CRANE_END");
                 }
@@ -166,7 +169,7 @@ void pendulo_task(void*){
             break;
             case PENDULO_UNHOOK_CRANE:
                 if(millis()>cheap_timer+1000){
-                    height_stepper.setTargetPositionInSteps(ALTURA_HOLD);
+                    height_stepper.setTargetPositionInSteps(ALTURA_HOLD_*MM_TO_STEPS);
                     estado=PENDULO_RISING_CRANE_END;
                     Serial.println("MEF: a PENDULO_RISING_CRANE_END");
                 }
