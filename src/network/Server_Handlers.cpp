@@ -38,7 +38,7 @@ DEF_HANDLER(handlePendulum)
 {
     char argNameC[15], valueC[120];
     float angle=0;
-    float lenght=0;
+    float length=0;
     int massIndex=0;
     float maxtime=0;
     while (req.left())
@@ -51,13 +51,13 @@ DEF_HANDLER(handlePendulum)
 
             if(argName=="init"){
                 angle=doc["Angle"];
-                lenght=doc["Lenght"];
+                length=doc["Lenght"];
                 maxtime=doc["Time"];
                 massIndex=(int)doc["MassIndex"];
             }//*/
             Serial.println(argName + "  " + value);
             if(argName=="Angle") angle=value.toFloat();
-            if(argName=="Lenght") lenght=value.toFloat();
+            if(argName=="Length") length=value.toFloat();
             if(argName=="Time") maxtime=value.toFloat();
             if(argName=="MassIndex") massIndex=(int)value.toInt();
         }
@@ -65,7 +65,7 @@ DEF_HANDLER(handlePendulum)
     }
 
     Serial.println(angle);
-    Serial.println(lenght);
+    Serial.println(length);
     Serial.println(massIndex);
     Serial.println(maxtime);
     
@@ -74,7 +74,7 @@ DEF_HANDLER(handlePendulum)
     res.print("{\"status\":\"ok\"}");
     res.status(200);
 
-    state_machines_trigger_start(massIndex,lenght,angle,maxtime);
+    if(maxtime!=0) state_machines_trigger_start(massIndex,length,angle,maxtime);
 }
 
 

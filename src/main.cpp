@@ -98,7 +98,7 @@ void print_Values (int16_t *gyro, int16_t *accel, int32_t *quat) {
     index_use_array=index_use_array==0?1:0;
   }
   _time[index_array_pos][index_use_array]=millis()-_start_time;
-  _angle[index_array_pos][index_use_array]=combinedAngle;//Angle[0];
+  _angle[index_array_pos][index_use_array]=xyz[1];//Angle[0];
  /* Serial.print(xyz[0]);
   Serial.print(", ");
   Serial.print(xyz[1]);
@@ -168,14 +168,13 @@ void test_motor_task(void *pvParam){
 
 void setup()
 {
+
     randomSeed(micros());
     delay(50);
     Logger::SetPriority(Info);
-    //CS.begin();
 
 #ifdef USE_WIFI
-   // char ssid[30], password[30];
-    //CS.getWiFi(ssid, password);
+
     LOG("Connecting to %s ", Info, sys, ssid);
     WiFi.begin(ssid, password);
 
@@ -184,11 +183,8 @@ void setup()
         delay(500);
         LOG_NOTAG(".", Info, sys);
     }
-    //ArduinoOTA.setHostname("ReLabsModule");
-    //ArduinoOTA.begin();
     LOG("WiFi connected", Info, sys);
     LOG("IP address: " + WiFi.localIP().toString(), Info, sys);
-    Serial.println("Hola");
 #endif
 
     setGetsPosts();
@@ -196,39 +192,20 @@ void setup()
 #ifdef USE_WIFI
     server.begin();
 #endif
-#ifdef USE_BT
-    LOG("Started BT: %d", Info, sys, SerialBT.begin("ReLabsModule"));
-#endif
     char user[30], uploadpassword[30];
-    //CS.getOTA(user, uploadpassword);
-    //EM.connect();
-    //ArduinoOTA.begin(currentIP, user, uploadpassword, InternalStorage);
     sM.startRails();
     sM.setRails(true);
-    //sM.startVI(0);
-    //sM.startVO(0);
-    //sM.startVO(4);
-    //sM.startIO(0);
-    //sM.startSERVO(SPARE_IO0);
-    //sM.startEXP(0);
-    Serial.println("Hola2");
     mpu_setup();
     xTaskCreatePinnedToCore(pendulo_task,"pendulo_task", 8192,NULL,2,NULL,1);
-    Serial.println("Hola3");
-    //xTaskCreatePinnedToCore(test_motor_task,"test", 2048,NULL,1,NULL,1);
-    
-    Serial.println("Hola4");
  
 }
 
 void loop()
 {
   mpu2.dmp_read_fifo(false);
-  delay(1);
+  delay(5);
 
 #ifdef USE_WIFI
-    //ArduinoOTA.handle();
-    //server.handleClient();
     WiFiClient client = server.available();
 #endif
     EthernetClient ethernetClient = ethernetServer.available();
@@ -249,10 +226,4 @@ void loop()
     }
 #endif
 
-#ifdef USE_BT
-    if (SerialBT.available())
-    {
-        Serial.write(SerialBT.read());
-    }
-#endif
 }
